@@ -74,12 +74,17 @@ def GetAllSections():
     ReadConfigs()
     return cp_obj.sections()
 
+# Returns next section ID, if there're gaps, will return that. if no gaps, will return next incremental ID
 def GetNextSectionID():
     ReadConfigs()
+    # set all section names as integers, since we use them as IDs
     _all = [int(x) for x in GetAllSections()]
-    for i in range(1,max(_all)+2):
-        if (i not in _all):
-            return i
+    # check if any sections exist at all
+    if(len(GetAllSections())>0):
+        # check from 1 to n and asign next not-used ID, where n is max ID used + 1
+        for i in range(1, max(_all) + 2):
+            if (i not in _all):
+                return i
 
 
 # Read the configs during loading:
