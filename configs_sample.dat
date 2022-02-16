@@ -1,0 +1,13 @@
+[1]
+name = '10MB'
+url = http://speedtest.tele2.net/10MB.zip
+destination_folder =
+last_download_time = 01/01/2022 23:59:59
+frequency = 08:00:00
+
+[2]
+name = '100MB'
+url = http://speedtest.tele2.net/100MB.zip
+destination_folder =
+last_download_time = 01/01/2022 23:59:59
+frequency = 08:00:00
