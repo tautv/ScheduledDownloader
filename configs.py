@@ -14,12 +14,12 @@ config_to_use = None # full path of the config file we're using
 # Check if config file exists:
 if not (os.path.exists(config_path)):
     # No config found at all. Looks for 'sample' one and warn user:
-    print('No "configs.dat" file found.')
+    print('No "%s" file found.' %config_file_name)
     if (os.path.exists(config_sample_path)):
-        print('Found "configs_sample.dat". Please rename this to "configs.dat" for proper use')
+        print('Found "%s". Please rename this to "%s" for proper use' % (config_sample_file_name, config_sample_path))
         config_to_use = config_sample_path # assign sample dat to work as config
     else:
-        raise Exception('No "config.dat" nor "config_sample.dat" found!')
+        raise Exception('No "%s" nor "%s" found!' % (config_file_name, config_sample_file_name))
         sys.exit()
 else:
     config_to_use = config_path # config found. assign it for use.
