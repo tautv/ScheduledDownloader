@@ -3,7 +3,6 @@ import configparser
 import os
 import sys
 
-# Get current paths:
 config_file_name = 'configs.dat' # default name for the config file
 config_sample_file_name = 'configs_sample.dat' # default name for the sample config file
 cur_path = os.path.dirname(os.path.realpath(__file__)) # current path of this configs.py file
@@ -16,11 +15,15 @@ if not (os.path.exists(config_path)):
     # No config found at all. Looks for 'sample' one and warn user:
     print('No "%s" file found.' %config_file_name)
     if (os.path.exists(config_sample_path)):
-        print('Found "%s". Please rename this to "%s" for proper use' % (config_sample_file_name, config_sample_path))
+        print('Found "%s". Renaming this to "%s" for proper use' % (config_sample_file_name, config_sample_path))
         config_to_use = config_sample_path # assign sample dat to work as config
+        os.rename(config_sample_path, config_path)
     else:
-        raise Exception('No "%s" nor "%s" found!' % (config_file_name, config_sample_file_name))
-        sys.exit()
+        print('No "%s" nor "%s" found!' % (config_file_name, config_sample_file_name))
+        with open(config_file_name,'w') as _file:
+            _file.write('')
+        config_to_use = config_path # new config file created. use that.
+        print('Created default config file:%s' % config_file_name)
 else:
     config_to_use = config_path # config found. assign it for use.
 
