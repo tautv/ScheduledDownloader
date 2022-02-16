@@ -41,7 +41,7 @@ def RemoveSection(section):
         cp_obj.remove_section(section)
         SaveConfigs()
     else:
-        raise Exception('Section "%s" was not found!')
+        raise Exception('Section "%s" was not found!' % section)
 
 # Add section if it doesn't exists yet
 def AddSection(new_section):
