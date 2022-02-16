@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx
+import configs
 
 class MainPanel(wx.Panel):
     def __init__(self, parent):
@@ -9,15 +10,23 @@ class MainPanel(wx.Panel):
         self.createWidgets()
         self.bindWidgets()
         self.gridWidgets()
+        self.createDynamicWidgets()
 
     def createWidgets(self):
-        pass
+        self.b_Temp = wx.Button(self, label="Test")
 
     def bindWidgets(self):
-        pass
+        self.b_Temp.Bind(wx.EVT_BUTTON, self.b_Temp_Command)
 
     def gridWidgets(self):
         pass
+
+    def b_Temp_Command(self, evt):
+        self.createDynamicWidgets()
+
+    def createDynamicWidgets(self):
+        print('----------------')
+
 
 class MainFrame(wx.Frame):
     def __init__(self):
