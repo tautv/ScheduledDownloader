@@ -5,7 +5,7 @@ class MainPanel(wx.Panel):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
-        self.SetBackgroundColour('#6f8089') # Test Purposes only:
+        self.SetBackgroundColour('#6f8089') # Test Purposes only
         self.createWidgets()
         self.bindWidgets()
         self.gridWidgets()
