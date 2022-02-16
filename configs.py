@@ -8,35 +8,30 @@ config_sample_file_name = 'configs_sample.dat' # default name for the sample con
 cur_path = os.path.dirname(os.path.realpath(__file__)) # current path of this configs.py file
 config_path = os.path.join(cur_path, config_file_name) # combined current path with config file name
 config_sample_path = os.path.join(cur_path,config_sample_file_name) # combined current path with sample config file name
-config_to_use = None # full path of the config file we're using
 
 # Check if config file exists:
 if not (os.path.exists(config_path)):
     # No config found at all. Looks for 'sample' one and warn user:
-    print('No "%s" file found.' %config_file_name)
+    print('No "%s" file found.' % config_file_name)
     if (os.path.exists(config_sample_path)):
         print('Found "%s". Renaming this to "%s" for proper use' % (config_sample_file_name, config_sample_path))
-        config_to_use = config_sample_path # assign sample dat to work as config
         os.rename(config_sample_path, config_path)
     else:
         print('No "%s" nor "%s" found!' % (config_file_name, config_sample_file_name))
         with open(config_file_name,'w') as _file:
             _file.write('')
-        config_to_use = config_path # new config file created. use that.
         print('Created default config file:%s' % config_file_name)
-else:
-    config_to_use = config_path # config found. assign it for use.
 
 # ConfigParser object
 cp_obj = configparser.ConfigParser()
 
 # Read the config file
 def ReadConfigs():
-    cp_obj.read(config_to_use)
+    cp_obj.read(config_path)
 
 # Save config file from current memory
 def SaveConfigs():
-    with open(config_to_use,'w') as _file:
+    with open(config_path,'w') as _file:
         cp_obj.write(_file)
 
 # Remove section if it exists
