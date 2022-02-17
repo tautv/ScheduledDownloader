@@ -11,6 +11,7 @@ class MainPanel(wx.Panel):
         self.BindWidgets()
         self.GridWidgets()
         self.DynamicSizers = []
+        self.CreateDynamic(None)
 
     def CreateWidgets(self):
         # Panels:
@@ -52,14 +53,14 @@ class MainPanel(wx.Panel):
             self.DynamicSizers = []
         # ----------------------------
         # Create Dynamic Widgets:
-        for i in range(1,5):
+        for i in configs.GetAllSections():
             _dSizer = wx.BoxSizer(wx.HORIZONTAL)
             _d_l_ID = wx.StaticText(self.Panel_Bottom, label="ID:%s" %i)
-            _d_l_Name = wx.StaticText(self.Panel_Bottom, label="Supplier Name: ")
+            _d_l_Name = wx.StaticText(self.Panel_Bottom, label="Supplier Name: %s" % configs.GetValue(i, 'Name'))
             _d_g_ProgressBar = wx.Gauge(self.Panel_Bottom, range=100, style=wx.GA_HORIZONTAL)
-            _d_b_Download = wx.Button(self.Panel_Bottom, label="Download Now")
-            _d_l_LastDownload = wx.StaticText(self.Panel_Bottom, label="Last Download Time: 01/01/2022 00:00:00")
-            _d_b_Edit = wx.Button(self.Panel_Bottom, label="...")
+            _d_b_Download = wx.Button(self.Panel_Bottom, label="Download Now", name="%s" %i)
+            _d_l_LastDownload = wx.StaticText(self.Panel_Bottom, label="Last Download Time: %s" % configs.GetValue(i, 'last_download_time'))
+            _d_b_Edit = wx.Button(self.Panel_Bottom, label="...", name="%s" %i)
             # Grid:
             _dSizer.AddSpacer(10)
             _dSizer.Add(_d_l_ID, 0, wx.LEFT)
@@ -74,12 +75,24 @@ class MainPanel(wx.Panel):
             _dSizer.AddSpacer(10)
             _dSizer.Add(_d_b_Edit, 0, wx.RIGHT)
             _dSizer.AddSpacer(10)
+            # Bind Buttons:
+            _d_b_Download.Bind(wx.EVT_BUTTON, self._d_b_Download_Command)
+            _d_b_Edit.Bind(wx.EVT_BUTTON, self._d_b_Edit_Command)
             # Add dynamic sizer to bottom panel
             self.Sizer_Bottom.Add(_dSizer)
             # Add this new sizer to a list for later use:
             self.DynamicSizers.append(_dSizer)
             # layout it all:
             self.Panel_Bottom.Layout()
+
+    def _d_b_Download_Command(self, evt):
+        id = evt.GetEventObject().GetName()
+        print("Event for ID: %s" %id)
+
+    def _d_b_Edit_Command(self, evt):
+        id = evt.GetEventObject().GetName()
+        print("Event for ID: %s" %id)
+        EditFrame(self.parent, id)
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -98,6 +111,24 @@ class MainFrame(wx.Frame):
         self.SetSizer(self.Sizer)
         #self.Fit()
         self.Show()
+
+class EditFrame(wx.Dialog):
+    def __init__(self, parent, id):
+        super().__init__(parent,
+                         title="Edit Download: %s" %configs.GetValue(id, "name"),
+                         size=(400,275))
+        self.CreateWidgets()
+        self.GridWidgets()
+
+    def CreateWidgets(self):
+        self.Sizer = wx.BoxSizer(wx.VERTICAL)
+        panel = wx.Panel(self)
+        self.Sizer.Add(panel, 1, wx.EXPAND)
+
+    def GridWidgets(self):
+        self.SetSizer(self.Sizer)
+        #self.Fit()
+        self.ShowModal()
 
 def LaunchGUI():
     APPLICATION = wx.App(False)
