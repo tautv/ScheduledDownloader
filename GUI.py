@@ -92,7 +92,7 @@ class MainPanel(wx.Panel):
     def _d_b_Edit_Command(self, evt):
         id = evt.GetEventObject().GetName()
         print("Event for ID: %s" %id)
-        EditFrame(self.parent, id)
+        EditFrame(self, id).ShowModal()
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -110,37 +110,24 @@ class MainFrame(wx.Frame):
     def GridWidgets(self):
         self.SetSizer(self.Sizer)
         #self.Fit()
-        self.Show()
 
 class EditFrame(wx.Dialog):
-    def __init__(self, parent, id):
-        super().__init__(parent,
-                         title="Edit Download: %s" %configs.GetValue(id, "name"),
-                         size=(400,275))
+    def __init__(self, parent, _id):
+        self._id = _id
+        self.title = "Edit %s" %_id
+        super().__init__(parent, title=self.title)
         self.CreateWidgets()
         self.GridWidgets()
 
     def CreateWidgets(self):
         self.Sizer = wx.BoxSizer(wx.VERTICAL)
-        panel = wx.Panel(self)
-        self.Sizer.Add(panel, 1, wx.EXPAND)
+        self.l_Test = wx.StaticText(self, label=self.title)
 
     def GridWidgets(self):
-        self.SetSizer(self.Sizer)
-        #self.Fit()
-        self.ShowModal()
+        self.Sizer.Add(self.l_Test)
 
 def LaunchGUI():
     APPLICATION = wx.App(False)
     _MainFrame = MainFrame()
     _MainFrame.Show()
     APPLICATION.MainLoop()
-
-# -----------------------------
-# NOTES:
-#
-# PASS ARGUMENTS IN A BUTTON:
-# b = wx.Button(self, 10, "Default Button", (20, 20))
-#         self.Bind(wx.EVT_BUTTON, lambda event: self.OnClick(event, 'somevalue'), b)
-# def OnClick(self, event, somearg):
-#         self.log.write("Click! (%d)\n" % event.GetId())
