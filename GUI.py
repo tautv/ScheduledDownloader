@@ -2,6 +2,7 @@
 import wx
 import configs
 
+
 class MainPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -35,8 +36,8 @@ class MainPanel(wx.Panel):
         self.Sizer_Top.Add(self.b_Button1)
         self.Sizer_Top.Add(self.b_Button2)
         # Grid Main Panels:
-        self.Sizer.Add(self.Panel_Top, 0, wx.EXPAND|wx.ALL)
-        self.Sizer.Add(self.Panel_Bottom, 1, wx.EXPAND|wx.ALL)
+        self.Sizer.Add(self.Panel_Top, 0, wx.EXPAND | wx.ALL)
+        self.Sizer.Add(self.Panel_Bottom, 1, wx.EXPAND | wx.ALL)
         # Set Sizers:
         self.Panel_Top.SetSizer(self.Sizer_Top)
         self.Panel_Bottom.SetSizer(self.Sizer_Bottom)
@@ -44,34 +45,39 @@ class MainPanel(wx.Panel):
 
     def CreateDynamic(self, evt):
         # If we created some dynamic widgets already, clear them:
-        if(len(self.DynamicSizers)>0):
+        if(len(self.DynamicSizers) > 0):
             for _dSizer in self.DynamicSizers:
                 for _dWidget in _dSizer.GetChildren():
                     _dw = _dWidget.GetWindow()
-                    if(_dw!= None):
+                    if not (_dw):
                         _dw.Destroy()
             self.DynamicSizers = []
         # ----------------------------
         # Create Dynamic Widgets:
         for i in configs.GetAllSections():
             _dSizer = wx.BoxSizer(wx.HORIZONTAL)
-            _d_l_ID = wx.StaticText(self.Panel_Bottom, label="ID:%s" %i)
-            _d_l_Name = wx.StaticText(self.Panel_Bottom, label="Supplier Name: %s" % configs.GetValue(i, 'Name'))
-            _d_g_ProgressBar = wx.Gauge(self.Panel_Bottom, range=100, style=wx.GA_HORIZONTAL)
-            _d_b_Download = wx.Button(self.Panel_Bottom, label="Download Now", name="%s" %i)
-            _d_l_LastDownload = wx.StaticText(self.Panel_Bottom, label="Last Download Time: %s" % configs.GetValue(i, 'last_download_time'))
-            _d_b_Edit = wx.Button(self.Panel_Bottom, label="...", name="%s" %i)
+            _d_l_ID = wx.StaticText(self.Panel_Bottom, label="ID:%s" % i)
+            _d_l_Name = wx.StaticText(
+                self.Panel_Bottom, label="Supplier Name: %s" % configs.GetValue(i, 'Name'))
+            _d_g_ProgressBar = wx.Gauge(
+                self.Panel_Bottom, range=100, style=wx.GA_HORIZONTAL)
+            _d_b_Download = wx.Button(
+                self.Panel_Bottom, label="Download Now", name="%s" % i)
+            _d_l_LastDownload = wx.StaticText(
+                self.Panel_Bottom, label="Last Download Time: %s" % configs.GetValue(i, 'last_download_time'))
+            _d_b_Edit = wx.Button(
+                self.Panel_Bottom, label="...", name="%s" % i)
             # Grid:
             _dSizer.AddSpacer(10)
             _dSizer.Add(_d_l_ID, 0, wx.LEFT)
             _dSizer.AddSpacer(10)
             _dSizer.Add(_d_l_Name, 0, wx.LEFT)
             _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_g_ProgressBar, 1, wx.CENTER|wx.EXPAND)
+            _dSizer.Add(_d_g_ProgressBar, 1, wx.CENTER | wx.EXPAND)
             _dSizer.AddSpacer(10)
             _dSizer.Add(_d_b_Download, 0, wx.CENTER)
             _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_l_LastDownload, 0, wx.CENTER|wx.EXPAND)
+            _dSizer.Add(_d_l_LastDownload, 0, wx.CENTER | wx.EXPAND)
             _dSizer.AddSpacer(10)
             _dSizer.Add(_d_b_Edit, 0, wx.RIGHT)
             _dSizer.AddSpacer(10)
@@ -87,18 +93,19 @@ class MainPanel(wx.Panel):
 
     def _d_b_Download_Command(self, evt):
         id = evt.GetEventObject().GetName()
-        print("Event for ID: %s" %id)
+        print("Event for ID: %s" % id)
 
     def _d_b_Edit_Command(self, evt):
         id = evt.GetEventObject().GetName()
-        print("Event for ID: %s" %id)
+        print("Event for ID: %s" % id)
         EditFrame(self, id).ShowModal()
+
 
 class MainFrame(wx.Frame):
     def __init__(self):
         super().__init__(None,
                          title="Scheduled Downloader",
-                         size=(800,550))
+                         size=(800, 550))
         self.CreateWidgets()
         self.GridWidgets()
 
@@ -109,12 +116,12 @@ class MainFrame(wx.Frame):
 
     def GridWidgets(self):
         self.SetSizer(self.Sizer)
-        #self.Fit()
+
 
 class EditFrame(wx.Dialog):
     def __init__(self, parent, _id):
         self._id = _id
-        self.title = "Edit %s" %_id
+        self.title = "Edit %s" % _id
         super().__init__(parent, title=self.title)
         self.CreateWidgets()
         self.GridWidgets()
@@ -125,6 +132,7 @@ class EditFrame(wx.Dialog):
 
     def GridWidgets(self):
         self.Sizer.Add(self.l_Test)
+
 
 def LaunchGUI():
     APPLICATION = wx.App(False)

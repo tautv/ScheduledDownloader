@@ -1,23 +1,28 @@
 # -*- coding: utf-8 -*-
 import configparser
 import os
-import sys
 
-config_file_name = 'configs.dat' # default name for the config file
-config_sample_file_name = 'configs_sample.dat' # default name for the sample config file
-cur_path = os.path.dirname(os.path.realpath(__file__)) # current path of this configs.py file
-config_path = os.path.join(cur_path, config_file_name) # combined current path with config file name
-config_sample_path = os.path.join(cur_path, config_sample_file_name) # combined current path with sample config file name
+config_file_name = 'configs.dat'  # default name for the config file
+# default name for the sample config file
+config_sample_file_name = 'configs_sample.dat'
+# current path of this configs.py file
+cur_path = os.path.dirname(os.path.realpath(__file__))
+# combined current path with config file name
+config_path = os.path.join(cur_path, config_file_name)
+# combined current path with sample config file name
+config_sample_path = os.path.join(cur_path, config_sample_file_name)
 
 # Check if config file exists:
 if not (os.path.exists(config_path)):
     # No config found at all. Looks for 'sample' one and warn user:
     print('No "%s" file found.' % config_file_name)
     if (os.path.exists(config_sample_path)):
-        print('Found "%s". Renaming this to "%s" for proper use.' % (config_sample_file_name, config_sample_path))
+        print('Found "%s". Renaming this to "%s" for proper use.' %
+              (config_sample_file_name, config_sample_path))
         os.rename(config_sample_path, config_path)
     else:
-        print('No "%s" nor "%s" found!' % (config_file_name, config_sample_file_name))
+        print('No "%s" nor "%s" found!' %
+              (config_file_name, config_sample_file_name))
         with open(config_file_name, 'w') as _file:
             _file.write('')
         print('Created default config file: %s.' % config_file_name)
@@ -25,14 +30,17 @@ if not (os.path.exists(config_path)):
 # ConfigParser object
 cp_obj = configparser.ConfigParser()
 
+
 # Read the config file
 def ReadConfigs():
     cp_obj.read(config_path)
+
 
 # Save config file from current memory
 def SaveConfigs():
     with open(config_path, 'w') as _file:
         cp_obj.write(_file)
+
 
 # Remove section if it exists
 def RemoveSection(section):
@@ -43,6 +51,7 @@ def RemoveSection(section):
     else:
         raise Exception('Section "%s" was not found!' % section)
 
+
 # Add section if it doesn't exists yet
 def AddSection(new_section):
     ReadConfigs()
@@ -51,6 +60,7 @@ def AddSection(new_section):
         SaveConfigs()
     else:
         raise Exception('Section "%s" already exists!' % new_section)
+
 
 # Set new value for key, if section exists
 def SetValue(section, key, new_value):
@@ -61,6 +71,7 @@ def SetValue(section, key, new_value):
     else:
         raise Exception('Section "%s" was not found!' % section)
 
+
 # Get value if section/key exists
 def GetValue(section, key):
     ReadConfigs()
@@ -69,9 +80,11 @@ def GetValue(section, key):
     else:
         raise Exception("No section/key found!")
 
+
 def GetAllSections():
     ReadConfigs()
     return cp_obj.sections()
+
 
 # Returns next section ID, if there're gaps, will return that. if no gaps, will return next incremental ID
 def GetNextSectionID():
@@ -79,7 +92,7 @@ def GetNextSectionID():
     # set all section names as integers, since we use them as IDs
     _all = [int(x) for x in GetAllSections()]
     # check if any sections exist at all
-    if(len(GetAllSections())>0):
+    if(len(GetAllSections()) > 0):
         # check from 1 to n and asign next not-used ID, where n is max ID used + 1
         for i in range(1, max(_all) + 2):
             if (i not in _all):

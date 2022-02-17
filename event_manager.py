@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pubsub import pub
 
+
 class Event():
     def __init__(self, name):
         self.name = name
