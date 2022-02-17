@@ -31,19 +31,19 @@ if not (os.path.exists(config_path)):
 cp_obj = configparser.ConfigParser()
 
 
-# Read the config file
 def ReadConfigs():
+    '''Read the config file'''
     cp_obj.read(config_path)
 
 
-# Save config file from current memory
 def SaveConfigs():
+    '''Save config file from current memory'''
     with open(config_path, 'w') as _file:
         cp_obj.write(_file)
 
 
-# Remove section if it exists
 def RemoveSection(section):
+    '''Remove section if it exists'''
     ReadConfigs()
     if (cp_obj.has_section(section)):
         cp_obj.remove_section(section)
@@ -52,8 +52,8 @@ def RemoveSection(section):
         raise Exception('Section "%s" was not found!' % section)
 
 
-# Add section if it doesn't exists yet
 def AddSection(new_section):
+    '''Add section if it doesn't exists yet'''
     ReadConfigs()
     if not (cp_obj.has_section(new_section)):
         cp_obj.add_section(new_section)
@@ -62,8 +62,8 @@ def AddSection(new_section):
         raise Exception('Section "%s" already exists!' % new_section)
 
 
-# Set new value for key, if section exists
 def SetValue(section, key, new_value):
+    '''Set new value for key, if section exists'''
     ReadConfigs()
     if (cp_obj.has_section(section)):
         cp_obj.set(section, key, new_value)
@@ -72,8 +72,8 @@ def SetValue(section, key, new_value):
         raise Exception('Section "%s" was not found!' % section)
 
 
-# Get value if section/key exists
 def GetValue(section, key):
+    '''Get value if section/key exists'''
     ReadConfigs()
     if (cp_obj.has_option(section, key)):
         return cp_obj.get(section, key)
@@ -86,14 +86,16 @@ def GetAllSections():
     return cp_obj.sections()
 
 
-# Returns next section ID, if there're gaps, will return that. if no gaps, will return next incremental ID
 def GetNextSectionID():
+    '''Returns next section ID, if there're gaps, will return that.
+        if no gaps, will return next incremental ID'''
     ReadConfigs()
     # set all section names as integers, since we use them as IDs
     _all = [int(x) for x in GetAllSections()]
     # check if any sections exist at all
     if(len(GetAllSections()) > 0):
-        # check from 1 to n and asign next not-used ID, where n is max ID used + 1
+        # check from 1 to n and asign next not-used ID,
+        # where n is max ID used + 1
         for i in range(1, max(_all) + 2):
             if (i not in _all):
                 return str(i)
