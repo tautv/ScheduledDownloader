@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 import configs
+import download_manager
+import event_manager
 
 
 class MainPanel(wx.Panel):
@@ -12,6 +14,8 @@ class MainPanel(wx.Panel):
         self.BindWidgets()
         self.GridWidgets()
         self.DynamicSizers = []
+        # holds tuple with (id, eventobject)
+        self.DynamicEvents = []
         self.CreateDynamic(None)
 
     def CreateWidgets(self):
@@ -49,22 +53,24 @@ class MainPanel(wx.Panel):
             for _dSizer in self.DynamicSizers:
                 for _dWidget in _dSizer.GetChildren():
                     _dw = _dWidget.GetWindow()
-                    if not (_dw):
+                    if (_dw):
                         _dw.Destroy()
             self.DynamicSizers = []
+            self.DynamicEvents = []
         # ----------------------------
         # Create Dynamic Widgets:
         for i in configs.GetAllSections():
             _dSizer = wx.BoxSizer(wx.HORIZONTAL)
-            _d_l_ID = wx.StaticText(self.Panel_Bottom, label="ID:%s" % i)
-            _d_l_Name = wx.StaticText(
-                self.Panel_Bottom, label="Supplier Name: %s" % configs.GetValue(i, 'Name'))
+            _d_l_ID = wx.StaticText(
+                self.Panel_Bottom, name='ID_%s' % i, label="ID:%s" % i)
+            _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' %
+                                      i, label="Supplier Name: %s" % configs.GetValue(i, 'Name'))
             _d_g_ProgressBar = wx.Gauge(
-                self.Panel_Bottom, range=100, style=wx.GA_HORIZONTAL)
+                self.Panel_Bottom, name='Gauge_%s' % i, range=100, style=wx.GA_HORIZONTAL)
             _d_b_Download = wx.Button(
-                self.Panel_Bottom, label="Download Now", name="%s" % i)
-            _d_l_LastDownload = wx.StaticText(
-                self.Panel_Bottom, label="Last Download Time: %s" % configs.GetValue(i, 'last_download_time'))
+                self.Panel_Bottom, name='%s' % i, label="Download Now")
+            _d_l_LastDownload = wx.StaticText(self.Panel_Bottom, name="LastDownload_%s" %
+                                              i, label="Last Download Time: %s" % configs.GetValue(i, 'last_download_time'))
             _d_b_Edit = wx.Button(
                 self.Panel_Bottom, label="...", name="%s" % i)
             # Grid:
@@ -84,6 +90,9 @@ class MainPanel(wx.Panel):
             # Bind Buttons:
             _d_b_Download.Bind(wx.EVT_BUTTON, self._d_b_Download_Command)
             _d_b_Edit.Bind(wx.EVT_BUTTON, self._d_b_Edit_Command)
+            self.DynamicEvents.append((i, event_manager.Event(i)))
+            self.DynamicEvents[-1][1].Subscribe(self.DynamicEvents_command)
+
             # Add dynamic sizer to bottom panel
             self.Sizer_Bottom.Add(_dSizer)
             # Add this new sizer to a list for later use:
@@ -93,12 +102,35 @@ class MainPanel(wx.Panel):
 
     def _d_b_Download_Command(self, evt):
         id = evt.GetEventObject().GetName()
-        print("Event for ID: %s" % id)
+        print("Download Event for ID: %s" % id)
+        download_manager.Downloader(id).StartThread()
 
     def _d_b_Edit_Command(self, evt):
         id = evt.GetEventObject().GetName()
-        print("Event for ID: %s" % id)
+        print("Edit Event for ID: %s" % id)
         EditFrame(self, id).ShowModal()
+
+    def DynamicEvents_command(self, msg):
+        _id = msg[0]
+        _msg = msg[1]
+        if(isinstance(_msg, float)):
+            for _dSizer in self.DynamicSizers:
+                for _dWidget in _dSizer.GetChildren():
+                    _dw = _dWidget.GetWindow()
+                    if(isinstance(_dw, wx.Gauge)):
+                        if (_dw.GetName() == 'Gauge_%s' % _id):
+                            _dw.SetValue(_msg)
+        if(isinstance(_msg, str)):
+            if (_msg == 'Finished'):
+                for _dSizer in self.DynamicSizers:
+                    for _dWidget in _dSizer.GetChildren():
+                        _dw = _dWidget.GetWindow()
+                        if(isinstance(_dw, wx.Gauge)):
+                            if (_dw.GetName() == 'Gauge_%s' % _id):
+                                _dw.SetValue(0)
+                        if(isinstance(_dw, wx.StaticText)):
+                            if (_dw.GetName() == 'LastDownload_%s' % _id):
+                                _dw.SetLabel('Last Download Time: %s' % 'Now')
 
 
 class MainFrame(wx.Frame):
@@ -132,6 +164,13 @@ class EditFrame(wx.Dialog):
 
     def GridWidgets(self):
         self.Sizer.Add(self.l_Test)
+
+
+def LaunchGUI():
+    APPLICATION = wx.App(False)
+    _MainFrame = MainFrame()
+    _MainFrame.Show()
+    APPLICATION.MainLoop()
 
 
 def LaunchGUI():
