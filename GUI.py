@@ -171,10 +171,3 @@ def LaunchGUI():
     _MainFrame = MainFrame()
     _MainFrame.Show()
     APPLICATION.MainLoop()
-
-
-def LaunchGUI():
-    APPLICATION = wx.App(False)
-    _MainFrame = MainFrame()
-    _MainFrame.Show()
-    APPLICATION.MainLoop()
