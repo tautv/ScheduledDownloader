@@ -73,7 +73,7 @@ def SetValue(section, key, new_value):
 
 
 def GetValue(section, key):
-    '''Get value if section/key exists'''
+    '''Get value if section & key exists'''
     ReadConfigs()
     if (cp_obj.has_option(section, key)):
         return cp_obj.get(section, key)
@@ -92,7 +92,7 @@ def GetNextSectionID():
     ReadConfigs()
     # set all section names as integers, since we use them as IDs
     _all = [int(x) for x in GetAllSections()]
-    # check if any sections exist at all
+    # check if any sections exists at all
     if(len(GetAllSections()) > 0):
         # check from 1 to n and asign next not-used ID,
         # where n is max ID used + 1
