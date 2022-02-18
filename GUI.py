@@ -121,7 +121,7 @@ class MainPanel(wx.Panel):
                     _dw = _dWidget.GetWindow()
                     if(isinstance(_dw, wx.Gauge)):
                         if (_dw.GetName() == 'Gauge_%s' % _id):
-                            _dw.SetValue(_msg)
+                            wx.CallAfter(_dw.SetValue, _msg)
         if(isinstance(_msg, str)):
             if (_msg == 'Finished'):
                 for _dSizer in self.DynamicSizers:
