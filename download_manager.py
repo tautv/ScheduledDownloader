@@ -16,9 +16,11 @@ class Downloader(Thread):
         # normalizing the path from configs, given by the user,
         # parsing the given url, then getting filename-only string
         # joining normalized destination path and filename-only string
+        # TODO: Do a proper URL parse to get the real filename+extension
         self.dest_path = os.path.join(os.path.normpath(GetValue(
             self._id, 'destination_folder')),
             os.path.basename(urlparse(self.url).path))
+        #
         self.last_download_time = GetValue(self._id, 'last_download_time')
         self.event = event_manager.Event(str(_id))
         self.stopped = False
