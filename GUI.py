@@ -13,9 +13,8 @@ class MainPanel(wx.Panel):
         self.CreateWidgets()
         self.BindWidgets()
         self.GridWidgets()
-        self.DynamicSizers = []
-        # holds tuple with (id, eventobject)
-        self.DynamicEvents = []
+        self.DynamicEvents = []  # holds tuple with (id, eventobject)
+        self.gSizer = wx.FlexGridSizer(6, 10, 10)  # cols, gap, gap
         self.CreateDynamic(None)
 
     def CreateWidgets(self):
@@ -40,8 +39,8 @@ class MainPanel(wx.Panel):
         self.Sizer_Top.Add(self.b_Button1)
         self.Sizer_Top.Add(self.b_Button2)
         # Grid Main Panels:
-        self.Sizer.Add(self.Panel_Top, 0, wx.EXPAND | wx.ALL)
-        self.Sizer.Add(self.Panel_Bottom, 1, wx.EXPAND | wx.ALL)
+        self.Sizer.Add(self.Panel_Top, 0, wx.EXPAND | wx.ALL, border=5)
+        self.Sizer.Add(self.Panel_Bottom, 1, wx.EXPAND | wx.ALL, border=5)
         # Set Sizers:
         self.Panel_Top.SetSizer(self.Sizer_Top)
         self.Panel_Bottom.SetSizer(self.Sizer_Bottom)
@@ -49,18 +48,15 @@ class MainPanel(wx.Panel):
 
     def CreateDynamic(self, evt):
         # If we created some dynamic widgets already, clear them:
-        if(len(self.DynamicSizers) > 0):
-            for _dSizer in self.DynamicSizers:
-                for _dWidget in _dSizer.GetChildren():
-                    _dw = _dWidget.GetWindow()
-                    if (_dw):
-                        _dw.Destroy()
-            self.DynamicSizers = []
-            self.DynamicEvents = []
+        for _dWidget in self.gSizer.GetChildren():
+            _dw = _dWidget.GetWindow()
+            if (_dw):
+                _dw.Destroy()
+        self.gSizer = wx.FlexGridSizer(6, 10, 10)
+        self.gSizer.AddGrowableCol(2, 1)
         # ----------------------------
         # Create Dynamic Widgets:
         for i in configs.GetAllSections():
-            _dSizer = wx.BoxSizer(wx.HORIZONTAL)
             _d_l_ID = wx.StaticText(
                 self.Panel_Bottom, name='ID_%s' % i, label="ID:%s" % i)
             _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' % i,
@@ -76,70 +72,66 @@ class MainPanel(wx.Panel):
             _d_b_Edit = wx.Button(
                 self.Panel_Bottom, label="...", name="%s" % i)
             # Grid:
-            _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_l_ID, 0, wx.LEFT)
-            _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_l_Name, 0, wx.LEFT)
-            _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_g_ProgressBar, 1, wx.CENTER | wx.EXPAND)
-            _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_b_Download, 0, wx.CENTER)
-            _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_l_LastDownload, 0, wx.CENTER | wx.EXPAND)
-            _dSizer.AddSpacer(10)
-            _dSizer.Add(_d_b_Edit, 0, wx.RIGHT)
-            _dSizer.AddSpacer(10)
+            self.gSizer.Add(_d_l_ID)
+            self.gSizer.Add(_d_l_Name)
+            self.gSizer.Add(_d_g_ProgressBar, 0, wx.EXPAND)
+            self.gSizer.Add(_d_b_Download)
+            self.gSizer.Add(_d_l_LastDownload)
+            self.gSizer.Add(_d_b_Edit)
             # Bind Buttons:
             _d_b_Download.Bind(wx.EVT_BUTTON, self._d_b_Download_Command)
             _d_b_Edit.Bind(wx.EVT_BUTTON, self._d_b_Edit_Command)
             self.DynamicEvents.append((i, event_manager.Event(i)))
             self.DynamicEvents[-1][1].Subscribe(self.DynamicEvents_command)
-
-            # Add dynamic sizer to bottom panel
-            self.Sizer_Bottom.Add(_dSizer)
-            # Add this new sizer to a list for later use:
-            self.DynamicSizers.append(_dSizer)
-            # layout it all:
-            self.Panel_Bottom.Layout()
+        # Add dynamic to bottom panel sizer:
+        self.Sizer_Bottom.Add(
+            self.gSizer, 1, flag=wx.ALL | wx.EXPAND, border=15)
+        # Refresh GUI:
+        self.Panel_Bottom.Layout()
+        self.parent.Fit()
 
     def _d_b_Download_Command(self, evt):
         id = evt.GetEventObject().GetName()
-        print("Download Event for ID: %s" % id)
         download_manager.Downloader(id).StartThread()
+        for _dWidget in self.gSizer.GetChildren():
+            _dw = _dWidget.GetWindow()
+            if(isinstance(_dw, wx.Button)):
+                if (_dw.GetName() == '%s' % id):
+                    _dw.Disable()
 
     def _d_b_Edit_Command(self, evt):
         id = evt.GetEventObject().GetName()
-        print("Edit Event for ID: %s" % id)
         EditFrame(self, id).ShowModal()
 
     def DynamicEvents_command(self, msg):
         _id = msg[0]
         _msg = msg[1]
         if(isinstance(_msg, float)):
-            for _dSizer in self.DynamicSizers:
-                for _dWidget in _dSizer.GetChildren():
+            for _dWidget in self.gSizer.GetChildren():
+                _dw = _dWidget.GetWindow()
+                if(isinstance(_dw, wx.Gauge)):
+                    if (_dw.GetName() == 'Gauge_%s' % _id):
+                        wx.CallAfter(_dw.SetValue, _msg)
+        if(isinstance(_msg, str)):
+            if (_msg == 'Finished'):
+                for _dWidget in self.gSizer.GetChildren():
                     _dw = _dWidget.GetWindow()
                     if(isinstance(_dw, wx.Gauge)):
                         if (_dw.GetName() == 'Gauge_%s' % _id):
-                            wx.CallAfter(_dw.SetValue, _msg)
-        if(isinstance(_msg, str)):
-            if (_msg == 'Finished'):
-                for _dSizer in self.DynamicSizers:
-                    for _dWidget in _dSizer.GetChildren():
-                        _dw = _dWidget.GetWindow()
-                        if(isinstance(_dw, wx.Gauge)):
-                            if (_dw.GetName() == 'Gauge_%s' % _id):
-                                _dw.SetValue(0)
-                        if(isinstance(_dw, wx.StaticText)):
-                            if (_dw.GetName() == 'LastDownload_%s' % _id):
-                                _dw.SetLabel('Last Download Time: %s' % 'Now')
+                            _dw.SetValue(0)
+                    if(isinstance(_dw, wx.StaticText)):
+                        if (_dw.GetName() == 'LastDownload_%s' % _id):
+                            _dw.SetLabel('Last Download Time: %s' % 'Now')
+                    if(isinstance(_dw, wx.Button)):
+                        if (_dw.GetName() == '%s' % _id):
+                            _dw.Enable()
 
 
 class MainFrame(wx.Frame):
     def __init__(self):
         super().__init__(None,
                          title="Scheduled Downloader",
-                         size=(800, 550))
+                         size=(850, 550))
         self.CreateWidgets()
         self.GridWidgets()
 
@@ -149,7 +141,7 @@ class MainFrame(wx.Frame):
         self.Sizer.Add(panel, 1, wx.EXPAND)
 
     def GridWidgets(self):
-        self.SetSizer(self.Sizer)
+        self.SetSizerAndFit(self.Sizer)
 
 
 class EditFrame(wx.Dialog):
