@@ -9,7 +9,6 @@ class MainPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         self.parent = parent
-        self.SetBackgroundColour('#6f8089')
         self.CreateWidgets()
         self.BindWidgets()
         self.GridWidgets()
@@ -20,9 +19,7 @@ class MainPanel(wx.Panel):
     def CreateWidgets(self):
         # Panels:
         self.Panel_Top = wx.Panel(self)
-        self.Panel_Top.SetBackgroundColour('#551111')
         self.Panel_Bottom = wx.Panel(self)
-        self.Panel_Bottom.SetBackgroundColour('#115511')
         # Sizers:
         self.Sizer = wx.BoxSizer(wx.VERTICAL)
         self.Sizer_Top = wx.BoxSizer(wx.HORIZONTAL)
@@ -144,17 +141,74 @@ class MainFrame(wx.Frame):
 class EditFrame(wx.Dialog):
     def __init__(self, parent, _id):
         self._id = _id
-        self.title = "Edit %s" % _id
+        self.parent = parent
+        self.title = "Edit %s" % configs.GetValue(_id, 'Name')
         super().__init__(parent, title=self.title)
         self.CreateWidgets()
+        self.BindWidgets()
         self.GridWidgets()
 
     def CreateWidgets(self):
         self.Sizer = wx.BoxSizer(wx.VERTICAL)
-        self.l_Test = wx.StaticText(self, label=self.title)
+        self.Sizer_Flex = wx.FlexGridSizer(2, 5, 5)
+        self.Sizer_Flex.AddGrowableCol(1, 1)
+        self.Sizer_Buttons = wx.BoxSizer(wx.HORIZONTAL)
+        # Widgets
+        self.l_ID = wx.StaticText(self, label="ID: %s" % self._id)
+        self.l_Name = wx.StaticText(self, label="Name: ")
+        self.e_Name = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "Name"))  # noqa
+        self.l_URL = wx.StaticText(self, label="URL: ")
+        self.e_URL = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "URL"))  # noqa
+        self.l_DestFolder = wx.StaticText(self, label="Destination Path: ")
+        self.e_DestFolder = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "destination_folder"))  # noqa
+        self.l_Frequency = wx.StaticText(self, label="Frequency (HH:MM:SS): ")
+        self.e_Frequency = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "frequency"))  # noqa
+        # Widgets Buttons
+        self.b_Save = wx.Button(self, label="Save")
+        self.b_Reset = wx.Button(self, label="Reset")
+        self.b_Cancel = wx.Button(self, label="Cancel")
+
+    def BindWidgets(self):
+        self.b_Save.Bind(wx.EVT_BUTTON, self.b_Save_Command)
+        self.b_Reset.Bind(wx.EVT_BUTTON, self.b_Reset_Command)
+        self.b_Cancel.Bind(wx.EVT_BUTTON, self.b_Cancel_Command)
+
+    def b_Save_Command(self, evt):
+        configs.SetValue(self._id, 'Name', self.e_Name.GetValue())
+        configs.SetValue(self._id, 'URL', self.e_URL.GetValue())
+        configs.SetValue(self._id, 'Destionation_Folder', self.e_DestFolder.GetValue())  # noqa
+        configs.SetValue(self._id, 'Frequency', self.e_Frequency.GetValue())  # noqa
+        wx.CallAfter(self.parent.CreateDynamic, None)
+        wx.CallAfter(self.Close)
+
+    def b_Reset_Command(self, evt):
+        self.e_Name.SetValue(configs.GetValue(self._id, 'Name'))
+        self.e_URL.SetValue(configs.GetValue(self._id, 'URL'))
+        self.e_DestFolder.SetValue(configs.GetValue(self._id, 'Destionation_Folder'))  # noqa
+        self.e_Frequency.SetValue(configs.GetValue(self._id, 'Frequency'))  # noqa
+
+    def b_Cancel_Command(self, evt):
+        wx.CallAfter(self.Close)
 
     def GridWidgets(self):
-        self.Sizer.Add(self.l_Test)
+        self.Sizer.Add(self.l_ID, 0, wx.CENTER)
+        #
+        self.Sizer_Flex.Add(self.l_Name, border=5)
+        self.Sizer_Flex.Add(self.e_Name, 0, wx.EXPAND)
+        self.Sizer_Flex.Add(self.l_URL, border=5)
+        self.Sizer_Flex.Add(self.e_URL, 0, wx.EXPAND)
+        self.Sizer_Flex.Add(self.l_DestFolder, border=5)
+        self.Sizer_Flex.Add(self.e_DestFolder, 0, wx.EXPAND)
+        self.Sizer_Flex.Add(self.l_Frequency, border=5)
+        self.Sizer_Flex.Add(self.e_Frequency, 0, wx.EXPAND)
+        #
+        self.Sizer_Buttons.Add(self.b_Save, border=5)
+        self.Sizer_Buttons.Add(self.b_Reset, border=5)
+        self.Sizer_Buttons.Add(self.b_Cancel, border=5)
+        #
+        self.Sizer.Add(self.Sizer_Flex, 1, flag=wx.ALL | wx.EXPAND, border=15)
+        self.Sizer.Add(self.Sizer_Buttons, 0, wx.CENTER, border=15)
+        self.Layout()
 
 
 def LaunchGUI():
