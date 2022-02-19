@@ -60,7 +60,7 @@ class MainPanel(wx.Panel):
             _d_l_ID = wx.StaticText(
                 self.Panel_Bottom, name='ID_%s' % i, label="ID:%s" % i)
             _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' % i,
-                                      label="Supplier Name: %s" % configs.GetValue(i, 'Name'))
+                                      label="Download Name: %s" % configs.GetValue(i, 'Name'))
             _d_g_ProgressBar = wx.Gauge(
                 self.Panel_Bottom, name='Gauge_%s' % i, range=100, style=wx.GA_HORIZONTAL)
             _d_b_Download = wx.Button(
