@@ -59,12 +59,9 @@ class MainPanel(wx.Panel):
         for i in configs.GetAllSections():
             _d_l_ID = wx.StaticText(
                 self.Panel_Bottom, name='ID_%s' % i, label="ID:%s" % i)
-            _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' % i,
-                                      label="Download Name: %s" % configs.GetValue(i, 'Name'))  # noqa
-            _d_g_ProgressBar = wx.Gauge(
-                self.Panel_Bottom, name='Gauge_%s' % i, range=100, style=wx.GA_HORIZONTAL)  # noqa
-            _d_b_Download = wx.Button(
-                self.Panel_Bottom, name='%s' % i, label="Download Now")
+            _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' % i, label="Download Name: %s" % configs.GetValue(i, 'Name'))  # noqa
+            _d_g_ProgressBar = wx.Gauge(self.Panel_Bottom, name='Gauge_%s' % i, range=100, style=wx.GA_HORIZONTAL)  # noqa
+            _d_b_Download = wx.Button(self.Panel_Bottom, name='%s' % i, label="Download Now")  # noqa
             _d_l_LastDownload = wx.StaticText(self.Panel_Bottom,
                                               name="LastDownload_%s" % i,
                                               label="Last Download Time: %s" %
