@@ -131,7 +131,12 @@ class MainPanel(wx.Panel):
                     if(isinstance(_dw, wx.Button)):
                         if (_dw.GetName() == '%s' % _id):
                             _dw.Enable()
-
+            if (_msg == 'NoTotalSize'):
+                for _dWidget in self.gSizer.GetChildren():
+                    _dw = _dWidget.GetWindow()
+                    if(isinstance(_dw, wx.Gauge)):
+                        if (_dw.GetName() == 'Gauge_%s' % _id):
+                            _dw.Pulse()
 
 class MainFrame(wx.Frame):
     def __init__(self):
