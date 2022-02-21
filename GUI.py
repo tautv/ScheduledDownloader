@@ -176,7 +176,7 @@ class EditFrame(wx.Dialog):
     def b_Save_Command(self, evt):
         configs.SetValue(self._id, 'Name', self.e_Name.GetValue())
         configs.SetValue(self._id, 'URL', self.e_URL.GetValue())
-        configs.SetValue(self._id, 'Destionation_Folder', self.e_DestFolder.GetValue())  # noqa
+        configs.SetValue(self._id, 'Destination_Folder', self.e_DestFolder.GetValue())  # noqa
         configs.SetValue(self._id, 'Frequency', self.e_Frequency.GetValue())  # noqa
         wx.CallAfter(self.parent.CreateDynamic, None)
         wx.CallAfter(self.Close)
@@ -184,7 +184,7 @@ class EditFrame(wx.Dialog):
     def b_Reset_Command(self, evt):
         self.e_Name.SetValue(configs.GetValue(self._id, 'Name'))
         self.e_URL.SetValue(configs.GetValue(self._id, 'URL'))
-        self.e_DestFolder.SetValue(configs.GetValue(self._id, 'Destionation_Folder'))  # noqa
+        self.e_DestFolder.SetValue(configs.GetValue(self._id, 'Destination_Folder'))  # noqa
         self.e_Frequency.SetValue(configs.GetValue(self._id, 'Frequency'))  # noqa
 
     def b_Cancel_Command(self, evt):
