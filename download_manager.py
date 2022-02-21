@@ -59,5 +59,4 @@ class Downloader(Thread):
             if(not self.stopped):
                 self.event.SendMessage((self._id, "Finished"))
         except Exception as e:
-            print(e)
             self.event.SendMessage((self._id, "Error"))

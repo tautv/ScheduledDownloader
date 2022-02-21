@@ -119,6 +119,18 @@ class MainPanel(wx.Panel):
                     if(isinstance(_dw, wx.Button)):
                         if (_dw.GetName() == '%s' % _id):
                             _dw.Enable()
+            if (_msg == 'Error'):
+                for _dWidget in self.gSizer.GetChildren():
+                    _dw = _dWidget.GetWindow()
+                    if(isinstance(_dw, wx.Gauge)):
+                        if (_dw.GetName() == 'Gauge_%s' % _id):
+                            _dw.SetValue(0)
+                    if(isinstance(_dw, wx.StaticText)):
+                        if (_dw.GetName() == 'LastDownload_%s' % _id):
+                            _dw.SetLabel('Last Download Time: %s' % 'Error!')
+                    if(isinstance(_dw, wx.Button)):
+                        if (_dw.GetName() == '%s' % _id):
+                            _dw.Enable()
 
 
 class MainFrame(wx.Frame):
