@@ -120,37 +120,35 @@ class MainPanel(wx.Panel):
     def DynamicEvents_command(self, msg):
         _id = msg[0]
         _msg = msg[1]
-        if(isinstance(_msg, float)):
-            for _dWidget in self.gSizer.GetChildren():
-                _dw = _dWidget.GetWindow()
-                if(isWidgetWithName(_dw, wx.Gauge, 'Gauge_%s' % _id)):
-                    wx.CallAfter(_dw.SetValue, _msg)
-        if(isinstance(_msg, str)):
-            if (_msg == 'Finished'):
-                for _dWidget in self.gSizer.GetChildren():
-                    _dw = _dWidget.GetWindow()
-                    if(isWidgetWithName(_dw, wx.Gauge, 'Gauge_%s' % _id)):
+        for _dWidget in self.gSizer.GetChildren():
+            _dw = _dWidget.GetWindow()
+            # Update Gauge part
+            if(isWidgetWithName(_dw, wx.Gauge, 'Gauge_%s' % _id)):
+                if(isinstance(_msg, str)):
+                    if (_msg == 'Finished'):
                         _dw.SetValue(0)
-                    if(isWidgetWithName(_dw, wx.StaticText, 'LastDownload_%s' % _id)):  # noqa
-                        _time_stamp = time_helper.GetTimestamp()
-                        _dw.SetLabel('Last Download Time: %s' % _time_stamp)
-                        configs.SetValue(_id, 'last_download_time', _time_stamp)  # noqa
-                    if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
-                        _dw.Enable()
-            if (_msg == 'Error'):
-                for _dWidget in self.gSizer.GetChildren():
-                    _dw = _dWidget.GetWindow()
-                    if(isWidgetWithName(_dw, wx.Gauge, 'Gauge_%s' % _id)):
+                    if (_msg == 'Error'):
                         _dw.SetValue(0)
-                    if(isWidgetWithName(_dw, wx.StaticText, 'LastDownload_%s' % _id)):  # noqa
-                        _dw.SetLabel('Last Download Time: %s' % 'Error!')
-                    if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
-                        _dw.Enable()
-            if (_msg == 'NoTotalSize'):
-                for _dWidget in self.gSizer.GetChildren():
-                    _dw = _dWidget.GetWindow()
-                    if(isWidgetWithName(_dw, wx.Gauge, 'Gauge_%s' % _id)):
+                    if (_msg == 'NoTotalSize'):
                         _dw.Pulse()
+                if(isinstance(_msg, float)):
+                    wx.CallAfter(_dw.SetValue, _msg)
+            # Update StaticText part
+            if(isWidgetWithName(_dw, wx.StaticText, 'LastDownload_%s' % _id)):  # noqa
+                if(isinstance(_msg, str)):
+                    if (_msg == 'Finished'):
+                        _time_stamp = time_helper.GetTimestamp()
+                        _dw.SetLabel('Last Download Time: %s' % _time_stamp)  # noqa
+                        configs.SetValue(_id, 'last_download_time', _time_stamp)  # noqa
+                    if (_msg == 'Error'):
+                        _dw.SetLabel('Last Download Time: %s' % 'Error!')
+            # Update Button part
+            if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
+                if(isinstance(_msg, str)):
+                    if (_msg == 'Finished'):
+                        _dw.Enable()
+                    if (_msg == 'Error'):
+                        _dw.Enable()
 
     def UpdateTopTimer(self):
         self.l_TimeNow.SetLabel(time_helper.GetTimestamp())
