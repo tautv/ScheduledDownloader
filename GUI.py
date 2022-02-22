@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from os import path
 import wx
 import configs
 import download_manager
 import event_manager
+import time_helper
 
 
 class MainPanel(wx.Panel):
@@ -15,6 +17,7 @@ class MainPanel(wx.Panel):
         self.DynamicEvents = []  # holds tuple with (id, eventobject)
         self.gSizer = wx.FlexGridSizer(6, 10, 10)  # cols, gap, gap
         self.CreateDynamic(None)
+        wx.CallAfter(self.UpdateTopTimer)
 
     def CreateWidgets(self):
         # Panels:
@@ -25,6 +28,7 @@ class MainPanel(wx.Panel):
         self.Sizer_Top = wx.BoxSizer(wx.HORIZONTAL)
         self.Sizer_Bottom = wx.BoxSizer(wx.VERTICAL)
         # Top Buttons:
+        self.l_TimeNow = wx.StaticText(self.Panel_Top, label='1970/01/01 00:00:01')
         self.b_Button1 = wx.Button(self.Panel_Top, label="Button 1")
         self.b_Button2 = wx.Button(self.Panel_Top, label="Button 2")
 
@@ -33,6 +37,7 @@ class MainPanel(wx.Panel):
 
     def GridWidgets(self):
         # Grid Top Panel:
+        self.Sizer_Top.Add(self.l_TimeNow)
         self.Sizer_Top.Add(self.b_Button1)
         self.Sizer_Top.Add(self.b_Button2)
         # Grid Main Panels:
@@ -49,7 +54,7 @@ class MainPanel(wx.Panel):
             _dw = _dWidget.GetWindow()
             if (_dw):
                 _dw.Destroy()
-        self.gSizer = wx.FlexGridSizer(6, 10, 10)
+        self.gSizer = wx.FlexGridSizer(7, 10, 10)
         self.gSizer.AddGrowableCol(2, 1)
         # ----------------------------
         # Create Dynamic Widgets:
@@ -58,17 +63,19 @@ class MainPanel(wx.Panel):
                 self.Panel_Bottom, name='ID_%s' % i, label="ID:%s" % i)
             _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' % i, label="Name: %s" % configs.GetValue(i, 'Name'))  # noqa
             _d_g_ProgressBar = wx.Gauge(self.Panel_Bottom, name='Gauge_%s' % i, range=100, style=wx.GA_HORIZONTAL)  # noqa
+            _d_g_RemainingTime = wx.StaticText(self.Panel_Bottom, name="Remaining_%s" % i, label="Next Download: 00:00:00")
             _d_b_Download = wx.Button(self.Panel_Bottom, name='%s' % i, label="Download Now")  # noqa
             _d_l_LastDownload = wx.StaticText(self.Panel_Bottom,
                                               name="LastDownload_%s" % i,
                                               label="Last Download Time: %s" %
                                               configs.GetValue(i, 'last_download_time'))  # noqa
             _d_b_Edit = wx.Button(
-                self.Panel_Bottom, label="...", name="%s" % i)
+                self.Panel_Bottom, label="...", name="Edit_%s" % i)
             # Grid:
             self.gSizer.Add(_d_l_ID)
             self.gSizer.Add(_d_l_Name)
             self.gSizer.Add(_d_g_ProgressBar, 0, wx.EXPAND)
+            self.gSizer.Add(_d_g_RemainingTime)
             self.gSizer.Add(_d_b_Download)
             self.gSizer.Add(_d_l_LastDownload)
             self.gSizer.Add(_d_b_Edit)
@@ -77,6 +84,8 @@ class MainPanel(wx.Panel):
             _d_b_Edit.Bind(wx.EVT_BUTTON, self._d_b_Edit_Command)
             self.DynamicEvents.append((i, event_manager.Event(i)))
             self.DynamicEvents[-1][1].Subscribe(self.DynamicEvents_command)
+            # Call Timer:
+            self.UpdateTimeRemaining(str(i))
         # Add dynamic to bottom panel sizer:
         self.Sizer_Bottom.Add(
             self.gSizer, 1, flag=wx.ALL | wx.EXPAND, border=15)
@@ -86,15 +95,17 @@ class MainPanel(wx.Panel):
 
     def _d_b_Download_Command(self, evt):
         id = evt.GetEventObject().GetName()
-        download_manager.Downloader(id).StartThread()
+        dm_d = download_manager.Downloader(id)
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
             if(isinstance(_dw, wx.Button)):
                 if (_dw.GetName() == '%s' % id):
-                    _dw.Disable()
+                    if (_dw.IsEnabled()):
+                        dm_d.StartThread()
+                        _dw.Disable()
 
     def _d_b_Edit_Command(self, evt):
-        id = evt.GetEventObject().GetName()
+        id = evt.GetEventObject().GetName().replace('Edit_','')
         EditFrame(self, id).ShowModal()
 
     def DynamicEvents_command(self, msg):
@@ -115,7 +126,9 @@ class MainPanel(wx.Panel):
                             _dw.SetValue(0)
                     if(isinstance(_dw, wx.StaticText)):
                         if (_dw.GetName() == 'LastDownload_%s' % _id):
-                            _dw.SetLabel('Last Download Time: %s' % 'Now')
+                            _time_stamp = time_helper.GetTimestamp()
+                            _dw.SetLabel('Last Download Time: %s' % _time_stamp)
+                            configs.SetValue(_id, 'last_download_time', _time_stamp)
                     if(isinstance(_dw, wx.Button)):
                         if (_dw.GetName() == '%s' % _id):
                             _dw.Enable()
@@ -138,11 +151,34 @@ class MainPanel(wx.Panel):
                         if (_dw.GetName() == 'Gauge_%s' % _id):
                             _dw.Pulse()
 
+    def UpdateTopTimer(self):
+        self.l_TimeNow.SetLabel(time_helper.GetTimestamp())
+        wx.CallLater(1000, self.UpdateTopTimer)
+
+    def UpdateTimeRemaining(self, _id):
+        for _dWidget in self.gSizer.GetChildren():
+            _dw = _dWidget.GetWindow()
+            if(isinstance(_dw, wx.StaticText)):
+                if (_dw.GetName() == 'Remaining_%s' % _id):
+                    _ldt = configs.GetValue(_id, "last_download_time")
+                    _freq = configs.GetValue(_id, "frequency")
+                    _rem = time_helper.TimeUntilNextDownload(_ldt, _freq)
+                    _dw.SetLabel('Next Download: %s' % _rem)
+            if(isinstance(_dw, wx.Button)):
+                if (_dw.GetName() == '%s' % _id):
+                    if(time_helper.ShouldDownload(_ldt, _freq)):
+                        if(_dw.IsEnabled()):
+                            evt = wx.CommandEvent(wx.EVT_BUTTON.typeId)
+                            evt.SetId(_dw.GetId())
+                            evt.SetEventObject(_dw)
+                            wx.PostEvent(_dw, evt)
+        wx.CallLater(1000, self.UpdateTimeRemaining, _id)
+
 class MainFrame(wx.Frame):
     def __init__(self):
         super().__init__(None,
                          title="Scheduled Downloader",
-                         size=(850, 550))
+                         size=(900, 550))
         self.CreateWidgets()
         self.GridWidgets()
 
@@ -191,10 +227,25 @@ class EditFrame(wx.Dialog):
         self.b_Cancel.Bind(wx.EVT_BUTTON, self.b_Cancel_Command)
 
     def b_Save_Command(self, evt):
-        configs.SetValue(self._id, 'Name', self.e_Name.GetValue())
+        # get values to check:
+        _freq = self.e_Frequency.GetValue()
+        _dest = self.e_DestFolder.GetValue()
+        # check values:
+        if not (time_helper.IsValidFrequency(_freq)):
+            wx.MessageBox('''Frequency format not valid!
+                            It has to be: HH:MM:SS (23:59:59)''',
+                            'ERROR', wx.OK | wx.ICON_INFORMATION)
+            return
+        if not (path.exists(_dest)):
+            wx.MessageBox('''Destination path is not valid!
+                             Please check the folder exists.''',
+                            'ERROR', wx.OK | wx.ICON_INFORMATION)
+            return
+        # if validation passed - update:
+        configs.SetValue(self._id, 'Frequency', _freq)  # noqa
+        configs.SetValue(self._id, 'Destination_Folder', _dest)  # noqa
         configs.SetValue(self._id, 'URL', self.e_URL.GetValue())
-        configs.SetValue(self._id, 'Destination_Folder', self.e_DestFolder.GetValue())  # noqa
-        configs.SetValue(self._id, 'Frequency', self.e_Frequency.GetValue())  # noqa
+        configs.SetValue(self._id, 'Name', self.e_Name.GetValue())
         wx.CallAfter(self.parent.CreateDynamic, None)
         wx.CallAfter(self.Close)
 
