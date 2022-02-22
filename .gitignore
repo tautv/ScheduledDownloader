@@ -3,3 +3,4 @@ __pycache__/
 configs.dat
 .DS_Store
 .vs/
+*.pyc
