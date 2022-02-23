@@ -77,7 +77,7 @@ class MainPanel(wx.Panel):
             _d_b_Download = wx.Button(self.Panel_Bottom, name='%s' % i, label="Download Now")  # noqa
             _d_l_LastDownload = wx.StaticText(self.Panel_Bottom,
                                               name="LastDownload_%s" % i,
-                                              label="Last Download Time: %s" %
+                                              label="Last Download: %s" %
                                               configs.GetValue(i, 'last_download_time'))  # noqa
             _d_b_Edit = wx.Button(
                 self.Panel_Bottom, label="...", name="Edit_%s" % i)
@@ -138,10 +138,10 @@ class MainPanel(wx.Panel):
                 if(isinstance(_msg, str)):
                     if (_msg == 'Finished'):
                         _time_stamp = time_helper.GetTimestamp()
-                        _dw.SetLabel('Last Download Time: %s' % _time_stamp)  # noqa
+                        _dw.SetLabel('Last Download: %s' % _time_stamp)  # noqa
                         configs.SetValue(_id, 'last_download_time', _time_stamp)  # noqa
                     if (_msg == 'Error'):
-                        _dw.SetLabel('Last Download Time: %s' % 'Error!')
+                        _dw.SetLabel('Last Download: %s' % 'Error!')
             # Update Button part
             if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
                 if(isinstance(_msg, str)):
