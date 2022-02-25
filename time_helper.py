@@ -28,8 +28,6 @@ def FrequencyTimeDelta(_frequency):
 def IsValidFrequency(_frequency):
     try:
         _fr = FrequencyTimeDelta(_frequency)
-        print(_fr)
-        print(type(_fr))
         if(_fr > datetime.timedelta(seconds=59)):
             return True
         else:
