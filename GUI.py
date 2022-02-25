@@ -108,9 +108,13 @@ class MainPanel(wx.Panel):
         dm_d = download_manager.Downloader(id)
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
+            # Start download thread, disable the Download button
             if(isWidgetWithName(_dw, wx.Button, '%s' % id)):
                 if (_dw.IsEnabled()):
                     dm_d.StartThread()
+                    _dw.Disable()
+            # Disable Edit button while downloading
+            if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % id)):
                     _dw.Disable()
 
     def _d_b_Edit_Command(self, evt):
@@ -142,8 +146,15 @@ class MainPanel(wx.Panel):
                         configs.SetValue(_id, 'last_download_time', _time_stamp)  # noqa
                     if (_msg == 'Error'):
                         _dw.SetLabel('Last Download: %s' % 'Error!')
-            # Update Button part
+            # Update Download Button part
             if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
+                if(isinstance(_msg, str)):
+                    if (_msg == 'Finished'):
+                        _dw.Enable()
+                    if (_msg == 'Error'):
+                        _dw.Enable()
+            # Update Edit Button part
+            if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id)):
                 if(isinstance(_msg, str)):
                     if (_msg == 'Finished'):
                         _dw.Enable()
@@ -212,7 +223,7 @@ class EditFrame(wx.Dialog):
         self.e_URL = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "URL"))  # noqa
         self.l_DestFolder = wx.StaticText(self, label="Destination Path: ")
         self.e_DestFolder = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "destination_folder"))  # noqa
-        self.l_Frequency = wx.StaticText(self, label="Frequency (HH:MM:SS): ")
+        self.l_Frequency = wx.StaticText(self, label="Frequency\n(Days HH:MM:SS): ")
         self.e_Frequency = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "frequency"))  # noqa
         # Widgets Buttons
         self.b_Save = wx.Button(self, label="Save")
@@ -231,7 +242,13 @@ class EditFrame(wx.Dialog):
         # check values:
         if not (time_helper.IsValidFrequency(_freq)):
             wx.MessageBox('''Frequency format not valid!
-                            It has to be: HH:MM:SS (23:59:59)''',
+                            It has to be:
+                            "DD HH:MM:SS"
+
+                            Example: (0 23:59:59)
+                            (0 days 23 hours:59 Minutes:59 Seconds)
+
+                            Minimum download frequency is every minute''',
                           'ERROR', wx.OK | wx.ICON_INFORMATION)
             return
         if not (path.exists(_dest)):
