@@ -258,7 +258,7 @@ It has to be:
 "DD HH:MM:SS"
 
 Example: (0 23:59:59)
-(0 days 23 hours:59 Minutes:59 Seconds)
+(0 days, 23 hours, 59 Minutes, 59 Seconds)
 
 Minimum download frequency is every minute''',
                           'ERROR', wx.OK | wx.ICON_INFORMATION)
