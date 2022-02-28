@@ -39,19 +39,14 @@ class MainPanel(wx.Panel):
         self.l_TimeNow = wx.StaticText(
             self.Panel_Top, label='1970/01/01 00:00:01')
         self.b_NewDownload = wx.Button(self.Panel_Top, label="Add New Download")
-        self.b_Button1 = wx.Button(self.Panel_Top, label="Button 1")
-        self.b_Button2 = wx.Button(self.Panel_Top, label="Button 2")
 
     def BindWidgets(self):
-        self.b_Button1.Bind(wx.EVT_BUTTON, self.CreateDynamic)
         self.b_NewDownload.Bind(wx.EVT_BUTTON, self.b_NewDownload_Command)
 
     def GridWidgets(self):
         # Grid Top Panel:
         self.Sizer_Top.Add(self.l_TimeNow)
         self.Sizer_Top.Add(self.b_NewDownload)
-        self.Sizer_Top.Add(self.b_Button1)
-        self.Sizer_Top.Add(self.b_Button2)
         # Grid Main Panels:
         self.Sizer.Add(self.Panel_Top, 0, wx.EXPAND | wx.ALL, border=5)
         self.Sizer.Add(self.Panel_Bottom, 1, wx.EXPAND | wx.ALL, border=5)
