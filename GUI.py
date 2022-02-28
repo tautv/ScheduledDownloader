@@ -228,11 +228,13 @@ class EditFrame(wx.Dialog):
         # Widgets Buttons
         self.b_Save = wx.Button(self, label="Save")
         self.b_Reset = wx.Button(self, label="Reset")
+        self.b_Delete = wx.Button(self, label="Delete")
         self.b_Cancel = wx.Button(self, label="Cancel")
 
     def BindWidgets(self):
         self.b_Save.Bind(wx.EVT_BUTTON, self.b_Save_Command)
         self.b_Reset.Bind(wx.EVT_BUTTON, self.b_Reset_Command)
+        self.b_Delete.Bind(wx.EVT_BUTTON, self.b_Delete_Command)
         self.b_Cancel.Bind(wx.EVT_BUTTON, self.b_Cancel_Command)
 
     def b_Save_Command(self, evt):
@@ -273,6 +275,11 @@ class EditFrame(wx.Dialog):
     def b_Cancel_Command(self, evt):
         wx.CallAfter(self.Close)
 
+    def b_Delete_Command(self, evt):
+        configs.RemoveSection(self._id)
+        wx.CallAfter(self.parent.CreateDynamic, None)
+        wx.CallAfter(self.Close)
+
     def GridWidgets(self):
         self.Sizer.Add(self.l_ID, 0, wx.CENTER)
         #
@@ -287,6 +294,7 @@ class EditFrame(wx.Dialog):
         #
         self.Sizer_Buttons.Add(self.b_Save, border=5)
         self.Sizer_Buttons.Add(self.b_Reset, border=5)
+        self.Sizer_Buttons.Add(self.b_Delete, border=5)
         self.Sizer_Buttons.Add(self.b_Cancel, border=5)
         #
         self.Sizer.Add(self.Sizer_Flex, 1, flag=wx.ALL | wx.EXPAND, border=15)
