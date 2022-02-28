@@ -2,7 +2,8 @@
 import configparser
 import os
 
-config_file_name = 'configs.dat'  # default name for the config file
+# default name for the config file
+config_file_name = 'configs.dat'
 # default name for the sample config file
 config_sample_file_name = 'configs_sample.dat'
 # current path of this configs.py file
