@@ -255,13 +255,13 @@ class EditFrame(wx.Dialog):
         # check values:
         if not (time_helper.IsValidFrequency(_freq)):
             wx.MessageBox('''Frequency format not valid!
-                            It has to be:
-                            "DD HH:MM:SS"
+It has to be:
+"DD HH:MM:SS"
 
-                            Example: (0 23:59:59)
-                            (0 days 23 hours:59 Minutes:59 Seconds)
+Example: (0 23:59:59)
+(0 days 23 hours:59 Minutes:59 Seconds)
 
-                            Minimum download frequency is every minute''',
+Minimum download frequency is every minute''',
                           'ERROR', wx.OK | wx.ICON_INFORMATION)
             return
         if not (path.exists(_dest)):
