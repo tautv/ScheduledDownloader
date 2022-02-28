@@ -205,7 +205,6 @@ class MainFrame(wx.Frame):
 class EditFrame(wx.Dialog):
     def __init__(self, parent, _id):
         self._id = _id
-        print(self._id)
         self.parent = parent
         self.isNew = False
         if(self._id not in configs.GetAllSections()):
