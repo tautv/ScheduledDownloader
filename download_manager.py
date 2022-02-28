@@ -64,7 +64,6 @@ class Downloader(Thread):
                 raise Exception('Destination is empty!')
             # end of main job
             self.event.SendMessage((self._id, self.download_percentage))
-            print(self.dest_path)
         else:
             self.event.SendMessage((self._id, "Stopped"))
         if(not self.stopped):
