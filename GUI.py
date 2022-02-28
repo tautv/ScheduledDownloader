@@ -38,15 +38,18 @@ class MainPanel(wx.Panel):
         # Top Buttons:
         self.l_TimeNow = wx.StaticText(
             self.Panel_Top, label='1970/01/01 00:00:01')
+        self.b_NewDownload = wx.Button(self.Panel_Top, label="Add New Download")
         self.b_Button1 = wx.Button(self.Panel_Top, label="Button 1")
         self.b_Button2 = wx.Button(self.Panel_Top, label="Button 2")
 
     def BindWidgets(self):
         self.b_Button1.Bind(wx.EVT_BUTTON, self.CreateDynamic)
+        self.b_NewDownload.Bind(wx.EVT_BUTTON, self.b_NewDownload_Command)
 
     def GridWidgets(self):
         # Grid Top Panel:
         self.Sizer_Top.Add(self.l_TimeNow)
+        self.Sizer_Top.Add(self.b_NewDownload)
         self.Sizer_Top.Add(self.b_Button1)
         self.Sizer_Top.Add(self.b_Button2)
         # Grid Main Panels:
@@ -102,6 +105,10 @@ class MainPanel(wx.Panel):
         # Refresh GUI:
         self.Panel_Bottom.Layout()
         self.parent.Fit()
+
+    def b_NewDownload_Command(self, evt):
+        id = configs.GetNextSectionID()
+        EditFrame(self, id).ShowModal()
 
     def _d_b_Download_Command(self, evt):
         id = evt.GetEventObject().GetName()
@@ -203,7 +210,12 @@ class MainFrame(wx.Frame):
 class EditFrame(wx.Dialog):
     def __init__(self, parent, _id):
         self._id = _id
+        print(self._id)
         self.parent = parent
+        self.isNew = False
+        if(self._id not in configs.GetAllSections()):
+            configs.AddSection(self._id)
+            self.isNew = True
         self.title = "Edit %s" % configs.GetValue(_id, 'Name')
         super().__init__(parent, title=self.title)
         self.CreateWidgets()
@@ -228,8 +240,12 @@ class EditFrame(wx.Dialog):
         # Widgets Buttons
         self.b_Save = wx.Button(self, label="Save")
         self.b_Reset = wx.Button(self, label="Reset")
+        if (self.isNew):
+            self.b_Reset.Disable()
         self.b_Delete = wx.Button(self, label="Delete")
         self.b_Cancel = wx.Button(self, label="Cancel")
+        if (self.isNew):
+            self.b_Cancel.Disable()
 
     def BindWidgets(self):
         self.b_Save.Bind(wx.EVT_BUTTON, self.b_Save_Command)
