@@ -58,6 +58,11 @@ def AddSection(new_section):
     ReadConfigs()
     if not (cp_obj.has_section(new_section)):
         cp_obj.add_section(new_section)
+        SetValue(new_section, "Name", "")
+        SetValue(new_section, "url", "")
+        SetValue(new_section, "destination_folder", "")
+        SetValue(new_section, "last_download_time", "2099/01/01 00:00:00")
+        SetValue(new_section, "frequency", "0 00:00:00")
         SaveConfigs()
     else:
         raise Exception('Section "%s" already exists!' % new_section)
