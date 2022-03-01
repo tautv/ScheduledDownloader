@@ -168,20 +168,21 @@ class MainPanel(wx.Panel):
         wx.CallLater(1000, self.UpdateTopTimer)
 
     def UpdateTimeRemaining(self, _id):
-        for _dWidget in self.gSizer.GetChildren():
-            _dw = _dWidget.GetWindow()
-            if(isWidgetWithName(_dw, wx.StaticText, 'Remaining_%s' % _id)):
-                _ldt = configs.GetValue(_id, "last_download_time")
-                _freq = configs.GetValue(_id, "frequency")
-                _rem = time_helper.TimeUntilNextDownload(_ldt, _freq)
-                _dw.SetLabel('Next Download: %s' % _rem)
-            if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
-                if(time_helper.ShouldDownload(_ldt, _freq)):
-                    if(_dw.IsEnabled()):
-                        evt = wx.CommandEvent(wx.EVT_BUTTON.typeId)
-                        evt.SetId(_dw.GetId())
-                        evt.SetEventObject(_dw)
-                        wx.PostEvent(_dw, evt)
+        if(self.gSizer):
+            for _dWidget in self.gSizer.GetChildren():
+                _dw = _dWidget.GetWindow()
+                if(isWidgetWithName(_dw, wx.StaticText, 'Remaining_%s' % _id)):
+                    _ldt = configs.GetValue(_id, "last_download_time")
+                    _freq = configs.GetValue(_id, "frequency")
+                    _rem = time_helper.TimeUntilNextDownload(_ldt, _freq)
+                    _dw.SetLabel('Next Download: %s' % _rem)
+                if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
+                    if(time_helper.ShouldDownload(_ldt, _freq)):
+                        if(_dw.IsEnabled()):
+                            evt = wx.CommandEvent(wx.EVT_BUTTON.typeId)
+                            evt.SetId(_dw.GetId())
+                            evt.SetEventObject(_dw)
+                            wx.PostEvent(_dw, evt)
         wx.CallLater(1000, self.UpdateTimeRemaining, _id)
 
 
