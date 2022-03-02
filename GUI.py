@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import path
 import wx
+import wx.adv
 import configs
 import download_manager
 import event_manager
@@ -20,6 +21,7 @@ class MainPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.parent = parent
         self.CreateWidgets()
+        self.CreateMenuBar()
         self.BindWidgets()
         self.GridWidgets()
         self.DynamicEvents = []  # holds tuple with (id, eventobject)
@@ -40,8 +42,29 @@ class MainPanel(wx.Panel):
             self.Panel_Top, label='1970/01/01 00:00:01')
         self.b_NewDownload = wx.Button(self.Panel_Top, label="Add New Download")
 
+    def CreateMenuBar(self):
+        # Menu bar itself:
+        self.MenuBar = wx.MenuBar()
+        # Section "File"
+        self.Menu_File = wx.Menu()
+        self.Menu_File_New_ID = wx.NewId()
+        self.Menu_File_New = wx.MenuItem(self.Menu_File, self.Menu_File_New_ID, text="Add New Download")
+        self.Menu_File.Append(self.Menu_File_New)
+        self.MenuBar.Append(self.Menu_File, "&File")
+        # Section "Window"
+        self.Menu_About = wx.Menu()
+        self.Menu_About_About_ID = wx.NewId()
+        self.Menu_About_About = wx.MenuItem(self.Menu_About, self.Menu_About_About_ID, text="About")
+        self.Menu_About.Append(self.Menu_About_About)
+        self.MenuBar.Append(self.Menu_About, "&About")
+        # Add Menu bar on this parent frame:
+        self.parent.SetMenuBar(self.MenuBar)
+
     def BindWidgets(self):
         self.b_NewDownload.Bind(wx.EVT_BUTTON, self.b_NewDownload_Command)
+        # Menu Binds:
+        self.parent.Bind(wx.EVT_MENU, self.b_NewDownload_Command, self.Menu_File_New)
+        self.parent.Bind(wx.EVT_MENU, self.Menu_About_About_Command, self.Menu_About_About)
 
     def GridWidgets(self):
         # Grid Top Panel:
@@ -104,6 +127,17 @@ class MainPanel(wx.Panel):
     def b_NewDownload_Command(self, evt):
         id = configs.GetNextSectionID()
         EditFrame(self, id).ShowModal()
+
+    def Menu_About_About_Command(self, evt):
+        # Improve specifics later:
+        aboutInfo = wx.adv.AboutDialogInfo()
+        aboutInfo.SetName("Scheduled Downloader")
+        aboutInfo.SetVersion('0.01')
+        aboutInfo.SetDescription("wxPython-based Scheduled Downloader")
+        aboutInfo.SetCopyright("(C) 2021-2022")
+        aboutInfo.SetWebSite("https://github.com/tautv/ScheduledDownloader")
+        aboutInfo.AddDeveloper("TautV")
+        wx.adv.AboutBox(aboutInfo)
 
     def _d_b_Download_Command(self, evt):
         id = evt.GetEventObject().GetName()
