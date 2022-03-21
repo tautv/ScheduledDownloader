@@ -25,7 +25,7 @@ class MainPanel(wx.Panel):
         self.BindWidgets()
         self.GridWidgets()
         self.DynamicEvents = []  # holds tuple with (id, eventobject)
-        self.gSizer = wx.FlexGridSizer(6, 10, 10)  # cols, gap, gap
+        self.gSizer = wx.FlexGridSizer(7, 10, 10)  # cols, gap, gap
         self.CreateDynamic(None)
         wx.CallAfter(self.UpdateTopTimer)
 
