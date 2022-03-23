@@ -79,23 +79,6 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
             _dt_td = datetime.timedelta(days=_addToDelta, seconds=0, minutes=0, hours=0)
         return _dt_td
 
-# these should all work:
-print(TimeUntilNextDownload('2022/03/22 08:00:00', '1,0,0,0,0,0,0 14:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,1,0,0,0,0,0 14:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,1,0,0,0,0 14:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,1,0,0,0 14:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,1,0,0 14:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,1,0 14:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,0,1 14:00:00'))
-print('-')
-print(TimeUntilNextDownload('2022/03/22 08:00:00', '1,0,0,0,0,0,0 08:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,1,0,0,0,0,0 08:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,1,0,0,0,0 08:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,1,0,0,0 08:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,1,0,0 08:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,1,0 08:00:00'))
-print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,0,1 08:00:00'))
-
 def ShouldDownload(_last_download_time, _frequency):
     now = datetime.datetime.strptime(GetTimestamp(), "%Y/%m/%d %H:%M:%S")
     last = datetime.datetime.strptime(_last_download_time, "%Y/%m/%d %H:%M:%S")
@@ -105,3 +88,23 @@ def ShouldDownload(_last_download_time, _frequency):
         return True
     else:
         return False
+
+
+
+
+# these should all work:
+# print(TimeUntilNextDownload('2022/03/22 08:00:00', '1,0,0,0,0,0,0 14:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,1,0,0,0,0,0 14:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,1,0,0,0,0 14:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,1,0,0,0 14:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,1,0,0 14:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,1,0 14:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,0,1 14:00:00'))
+# print('-')
+# print(TimeUntilNextDownload('2022/03/22 08:00:00', '1,0,0,0,0,0,0 08:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,1,0,0,0,0,0 08:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,1,0,0,0,0 08:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,1,0,0,0 08:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,1,0,0 08:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,1,0 08:00:00'))
+# print(TimeUntilNextDownload('2089/01/01 08:00:00', '0,0,0,0,0,0,1 08:00:00'))
