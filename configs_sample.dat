@@ -1,20 +1,27 @@
 [1]
-name = 10MB
-url = http://speedtest.tele2.net/10MB.zip
+name = 20MB
+url = https://sabnzbd.org/tests/internetspeed/20MB.bin
 destination_folder =
 last_download_time = 2089/01/01 23:59:59
-frequency = 0 08:00:00
+frequency = 1,1,1,1,1,1,1 08:00:00
 
 [2]
 name = 100MB
+url = https://speed.hetzner.de/100MB.bin
+destination_folder =
+last_download_time = 2089/01/01 23:59:59
+frequency = 0,1,1,1,1,1,1 00:00:00
+
+[3]
+name = 100MB (0ld)
 url = http://speedtest.tele2.net/100MB.zip
 destination_folder =
 last_download_time = 2089/01/01 23:59:59
-frequency = 1 00:00:00
+frequency = 1,0,0,0,0,0,0 08:00:00
 
-[3]
+[4]
 name = 1GB
-url = http://speedtest.tele2.net/1GB.zip
+url = https://speed.hetzner.de/1GB.bin
 destination_folder =
 last_download_time = 2089/01/01 23:59:59
-frequency = 2 12:00:00
+frequency = 1,1,1,1,1,1,1 12:00:00

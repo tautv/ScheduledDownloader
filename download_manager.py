@@ -27,7 +27,6 @@ class Downloader(Thread):
         self.dest_path = os.path.join(os.path.normpath(GetValue(
             self._id, 'destination_folder')),
             os.path.basename(_fname))
-        self.last_download_time = GetValue(self._id, 'last_download_time')
         self.event = event_manager.Event(str(_id))
         self.stopped = False
         self.download_percentage = 0.00
@@ -60,8 +59,10 @@ class Downloader(Thread):
                 except Exception as e:
                     print(e)
                     self.event.SendMessage((self._id, "Error"))
+                    self.StopThread()
             else:
                 raise Exception('Destination is empty!')
+                self.event.SendMessage((self._id, "Error"))
             # end of main job
             self.event.SendMessage((self._id, self.download_percentage))
         else:

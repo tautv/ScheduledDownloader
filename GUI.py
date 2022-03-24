@@ -94,7 +94,7 @@ class MainPanel(wx.Panel):
             _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' % i, label="Name: %s" % configs.GetValue(i, 'Name'))  # noqa
             _d_g_ProgressBar = wx.Gauge(self.Panel_Bottom, name='Gauge_%s' % i, range=100, size=(100, 20), style=wx.GA_HORIZONTAL)  # noqa
             _d_g_RemainingTime = wx.StaticText(
-                self.Panel_Bottom, name="Remaining_%s" % i, label="Next Download: 00:00:00")  # noqa
+                self.Panel_Bottom, name="Remaining_%s" % i, label="Next Download: 0 Days 00:00:00")  # noqa
             _d_b_Download = wx.Button(self.Panel_Bottom, name='%s' % i, label="Download Now")  # noqa
             _d_l_LastDownload = wx.StaticText(self.Panel_Bottom,
                                               name="LastDownload_%s" % i,
@@ -264,7 +264,7 @@ class EditFrame(wx.Dialog):
         self.e_URL = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "URL"))  # noqa
         self.l_DestFolder = wx.StaticText(self, label="Destination Path: ")
         self.e_DestFolder = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "destination_folder"))  # noqa
-        self.l_Frequency = wx.StaticText(self, label="Frequency\n(Days HH:MM:SS): ")
+        self.l_Frequency = wx.StaticText(self, label="Frequency\n(Weekdays HH:MM:SS): ")
         self.e_Frequency = wx.TextCtrl(self, value="%s" % configs.GetValue(self._id, "frequency"))  # noqa
         # Widgets Buttons
         self.b_Save = wx.Button(self, label="Save")
@@ -290,12 +290,11 @@ class EditFrame(wx.Dialog):
         if not (time_helper.IsValidFrequency(_freq)):
             wx.MessageBox('''Frequency format not valid!
 It has to be:
-"DD HH:MM:SS"
+"1,1,1,1,1,0,0 HH:MM:SS"
+"Weekdays HH:MM:SS"
 
-Example: (0 23:59:59)
-(0 days, 23 hours, 59 Minutes, 59 Seconds)
-
-Minimum download frequency is every minute''',
+Example: (1,0,0,0,1,0,0 23:59:59)
+(Monday & Friday at 23 hours, 59 Minutes, 59 Seconds)''',
                           'ERROR', wx.OK | wx.ICON_INFORMATION)
             return
         if not (path.exists(_dest)):
