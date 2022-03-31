@@ -65,6 +65,7 @@ class MainPanel(wx.Panel):
         # Menu Binds:
         self.parent.Bind(wx.EVT_MENU, self.b_NewDownload_Command, self.Menu_File_New)
         self.parent.Bind(wx.EVT_MENU, self.Menu_About_About_Command, self.Menu_About_About)
+        self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
 
     def GridWidgets(self):
         # Grid Top Panel:
@@ -160,6 +161,8 @@ class MainPanel(wx.Panel):
     def DynamicEvents_command(self, msg):
         _id = msg[0]
         _msg = msg[1]
+        if not(self.gSizer):
+            return
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
             # Update Gauge part
@@ -172,7 +175,10 @@ class MainPanel(wx.Panel):
                     if (_msg == 'NoTotalSize'):
                         _dw.Pulse()
                 if(isinstance(_msg, float)):
-                    wx.CallAfter(_dw.SetValue, _msg)
+                    if(_msg < 100.00):
+                        wx.CallAfter(_dw.SetValue, _msg)
+                    else:
+                        wx.CallAfter(_dw.SetValue, 0)
             # Update StaticText part
             if(isWidgetWithName(_dw, wx.StaticText, 'LastDownload_%s' % _id)):  # noqa
                 if(isinstance(_msg, str)):
@@ -189,12 +195,22 @@ class MainPanel(wx.Panel):
                         _dw.Enable()
                     if (_msg == 'Error'):
                         _dw.Enable()
+                    if (_msg == 'Stopped'):
+                        _dw.Enable()
+                if(isinstance(_msg, float)):
+                    if(_msg >= 100.00):
+                        _dw.Enable()
             # Update Edit Button part
             if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id)):
                 if(isinstance(_msg, str)):
                     if (_msg == 'Finished'):
                         _dw.Enable()
                     if (_msg == 'Error'):
+                        _dw.Enable()
+                    if (_msg == 'Stopped'):
+                        _dw.Enable()
+                if(isinstance(_msg, float)):
+                    if(_msg >= 100.00):
                         _dw.Enable()
 
     def UpdateTopTimer(self):
@@ -219,6 +235,10 @@ class MainPanel(wx.Panel):
                             wx.PostEvent(_dw, evt)
         wx.CallLater(1000, self.UpdateTimeRemaining, _id)
 
+
+    def OnCloseWindow(self, evt):
+        evt.Skip()
+        wx.CallLater(1000, self.Destroy)
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -281,6 +301,7 @@ class EditFrame(wx.Dialog):
         self.b_Reset.Bind(wx.EVT_BUTTON, self.b_Reset_Command)
         self.b_Delete.Bind(wx.EVT_BUTTON, self.b_Delete_Command)
         self.b_Cancel.Bind(wx.EVT_BUTTON, self.b_Cancel_Command)
+        self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
 
     def b_Save_Command(self, evt):
         # get values to check:
@@ -307,6 +328,7 @@ Example: (1,0,0,0,1,0,0 23:59:59)
         configs.SetValue(self._id, 'Destination_Folder', _dest)  # noqa
         configs.SetValue(self._id, 'URL', self.e_URL.GetValue())
         configs.SetValue(self._id, 'Name', self.e_Name.GetValue())
+        self.isNew = False
         wx.CallAfter(self.parent.CreateDynamic, None)
         wx.CallAfter(self.Close)
 
@@ -320,6 +342,7 @@ Example: (1,0,0,0,1,0,0 23:59:59)
         wx.CallAfter(self.Close)
 
     def b_Delete_Command(self, evt):
+        self.isNew = False
         configs.RemoveSection(self._id)
         wx.CallAfter(self.parent.CreateDynamic, None)
         wx.CallAfter(self.Close)
@@ -345,6 +368,13 @@ Example: (1,0,0,0,1,0,0 23:59:59)
         self.Sizer.Add(self.Sizer_Buttons, 0, wx.CENTER, border=15)
         self.Layout()
 
+    def OnCloseWindow(self, evt):
+        evt.Skip()
+        if(self.isNew):
+            self.isNew = False
+            self.b_Delete_Command(evt)
+        else:
+            wx.CallAfter(self.Destroy)
 
 def LaunchGUI():
     APPLICATION = wx.App(False)

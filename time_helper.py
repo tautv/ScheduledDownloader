@@ -35,7 +35,6 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
     _weekdayToday = datetime.datetime.now().weekday()
     _f_days = _frequency.split(' ')[0].split(',') # gets weekday freq: [1,1,1,1,1,1,1,1]
     _f_hour = _frequency.split(' ')[1] # gets the hour: 08:00:00
-    #_todaysDownload = '%s %s' % (GetTimestamp().split(' ')[0], _f_hour) # not used?
     # Wrap the list around, so weekdaytoday is the first index
     _f_days_wrapped = []
     for i in _f_days[_weekdayToday:]:
@@ -49,11 +48,12 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
 
     # Calculate how many days until next match:
     _addToDelta = 0
+    _today = False
     for i in range(7):
         if(_f_days_wrapped[i] == '1'):
-            # if we're looking at the past, ignore today and add one day to delta
+            # if we're looking at the past, ignore today
             if(_hours_Now>_hours_Last):
-                _addToDelta +=1
+                _today = True
             break
         else:
             _addToDelta+=1
@@ -68,7 +68,7 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
         _dt_td = datetime.timedelta(days=_addToDelta, seconds=_res_seconds, minutes=_res_minutes, hours=_res_hours)
         return _dt_td
     else:
-        if(_addToDelta>0):
+        if(_addToDelta>0) or (_today):
             _dt_td = datetime.timedelta(days=_addToDelta, seconds=_res_seconds, minutes=_res_minutes, hours=_res_hours)
         else:
             _dt_td = datetime.timedelta(days=_addToDelta, seconds=0, minutes=0, hours=0)
@@ -98,9 +98,24 @@ def ShouldDownload(_last_download_time, _frequency):
     _res_minutes, _res_seconds = divmod(_res_remainder, 60)
 
     if(_f_days_wrapped[0] == '1'):
+        #past
         if(_last_download_date<_today_download_date):
             return True
-        else:
-            if(_hours_Now<_hours_Last) and not (_last_download_date>_today_download_date):
+        #present
+        elif(_last_download_date==_today_download_date):
+            if(_hours_Now>_hours_Last):
+                # this is supposed to download if we launch the app,
+                #   and the download time is today,
+                #   but we missed the hour, it would download, however:
+                # If this condition is met, it'll keep downloading forever.
+                # Not sure how to solve yet!
+                # If this is not solved, if the app is not running,
+                #   it will not download today's list if the time passed already.
+                pass#return True
+            if(_hours_Now==_hours_Last):
                 return True
+        #future
+        else:
+            if(_hours_Now>_hours_Last):
+                    return True
     return False

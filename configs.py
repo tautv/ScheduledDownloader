@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import configparser
 import os
+import time_helper
 
 # default name for the config file
 config_file_name = 'configs.dat'
@@ -61,7 +62,7 @@ def AddSection(new_section):
         SetValue(new_section, "Name", "")
         SetValue(new_section, "url", "")
         SetValue(new_section, "destination_folder", "")
-        SetValue(new_section, "last_download_time", "2099/01/01 00:00:00")
+        SetValue(new_section, "last_download_time", time_helper.GetTimestamp())
         SetValue(new_section, "frequency", "1,1,1,1,1,0,0 00:00:00")
         SaveConfigs()
     else:

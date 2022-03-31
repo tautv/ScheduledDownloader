@@ -13,22 +13,27 @@ class Downloader(Thread):
         super().__init__()
         self._id = _id
         self.url = GetValue(self._id, 'url')
+        self.event = event_manager.Event(str(_id))
+        self.stopped = False
         # need this flag
         ssl._create_default_https_context = ssl._create_unverified_context
         # parse the URL, if can't find the extension, try HTTP Head:
         _fname = os.path.basename(urlparse(self.url).path)
         if ('.' not in _fname):
-            req = urllib.request.Request(self.url, method='HEAD')
-            r = urllib.request.urlopen(req)
-            _fname = r.info().get_filename()
+            try:
+                req = urllib.request.Request(self.url, method='HEAD')
+                r = urllib.request.urlopen(req)
+                _fname = r.info().get_filename()
+            except Exception as e:
+                self.StopThread()
+                self.event.SendMessage((self._id, "Error"))
+                print(e)
         # normalizing the path from configs, given by the user,
         # parsing the given url, then getting filename-only string
         # joining normalized destination path and filename-only string
         self.dest_path = os.path.join(os.path.normpath(GetValue(
             self._id, 'destination_folder')),
             os.path.basename(_fname))
-        self.event = event_manager.Event(str(_id))
-        self.stopped = False
         self.download_percentage = 0.00
 
     def StartThread(self):
@@ -65,7 +70,6 @@ class Downloader(Thread):
                 self.event.SendMessage((self._id, "Error"))
             # end of main job
             self.event.SendMessage((self._id, self.download_percentage))
+            self.event.SendMessage((self._id, "Finished"))
         else:
             self.event.SendMessage((self._id, "Stopped"))
-        if(not self.stopped):
-            self.event.SendMessage((self._id, "Finished"))
