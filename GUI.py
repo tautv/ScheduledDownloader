@@ -24,7 +24,7 @@ class MainPanel(wx.Panel):
         self.CreateMenuBar()
         self.BindWidgets()
         self.GridWidgets()
-        self.DynamicEvents = []  # holds tuple with (id, eventobject)
+        self.DynamicEvents = []  # holds tuple with (id, eventObject)
         self.gSizer = wx.FlexGridSizer(7, 10, 10)  # cols, gap, gap
         self.CreateDynamic(None)
         wx.CallAfter(self.UpdateTopTimer)
@@ -126,8 +126,8 @@ class MainPanel(wx.Panel):
         self.parent.Fit()
 
     def b_NewDownload_Command(self, evt):
-        id = configs.GetNextSectionID()
-        EditFrame(self, id).ShowModal()
+        _id = configs.GetNextSectionID()
+        EditFrame(self, _id).ShowModal()
 
     def Menu_About_About_Command(self, evt):
         # Improve specifics later:
@@ -141,22 +141,22 @@ class MainPanel(wx.Panel):
         wx.adv.AboutBox(aboutInfo)
 
     def _d_b_Download_Command(self, evt):
-        id = evt.GetEventObject().GetName()
-        dm_d = download_manager.Downloader(id)
+        _id = evt.GetEventObject().GetName()
+        dm_d = download_manager.Downloader(_id)
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
             # Start download thread, disable the Download button
-            if(isWidgetWithName(_dw, wx.Button, '%s' % id)):
+            if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
                 if (_dw.IsEnabled()):
                     dm_d.StartThread()
                     _dw.Disable()
             # Disable Edit button while downloading
-            if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % id)):
-                    _dw.Disable()
+            if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id)):
+                _dw.Disable()
 
     def _d_b_Edit_Command(self, evt):
-        id = evt.GetEventObject().GetName().replace('Edit_', '')
-        EditFrame(self, id).ShowModal()
+        _id = evt.GetEventObject().GetName().replace('Edit_', '')
+        EditFrame(self, _id).ShowModal()
 
     def DynamicEvents_command(self, msg):
         _id = msg[0]
@@ -202,7 +202,7 @@ class MainPanel(wx.Panel):
                         _dw.Enable()
             # Update Edit Button part
             if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id)):
-                if(isinstance(_msg, str)):
+                if (isinstance(_msg, str)):
                     if (_msg == 'Finished'):
                         _dw.Enable()
                     if (_msg == 'Error'):
@@ -221,9 +221,9 @@ class MainPanel(wx.Panel):
         if(self.gSizer):
             for _dWidget in self.gSizer.GetChildren():
                 _dw = _dWidget.GetWindow()
+                _ldt = configs.GetValue(_id, "last_download_time")
+                _freq = configs.GetValue(_id, "frequency")
                 if(isWidgetWithName(_dw, wx.StaticText, 'Remaining_%s' % _id)):
-                    _ldt = configs.GetValue(_id, "last_download_time")
-                    _freq = configs.GetValue(_id, "frequency")
                     _rem = time_helper.TimeUntilNextDownload(_ldt, _freq)
                     _dw.SetLabel('Next Download: %s' % _rem)
                 if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
@@ -235,10 +235,10 @@ class MainPanel(wx.Panel):
                             wx.PostEvent(_dw, evt)
         wx.CallLater(1000, self.UpdateTimeRemaining, _id)
 
-
     def OnCloseWindow(self, evt):
         evt.Skip()
         wx.CallLater(1000, self.Destroy)
+
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -375,6 +375,7 @@ Example: (1,0,0,0,1,0,0 23:59:59)
             self.b_Delete_Command(evt)
         else:
             wx.CallAfter(self.Destroy)
+
 
 def LaunchGUI():
     APPLICATION = wx.App(False)
