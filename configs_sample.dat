@@ -1,6 +1,6 @@
 [1]
-name = 20MB
-url = https://sabnzbd.org/tests/internetspeed/20MB.bin
+name = 10MB
+url = https://sabnzbd.org/tests/internetspeed/10MB.bin
 destination_folder =
 last_download_time = 2089/01/01 23:59:59
 frequency = 1,1,1,1,1,1,1 08:00:00

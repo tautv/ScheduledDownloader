@@ -11,7 +11,7 @@ import time_helper
 # Helper:
 def isWidgetWithName(_widget, _instance, _name):
     if(isinstance(_widget, _instance)):
-        if (_widget.GetName() == _name):
+        if(_widget.GetName() == _name):
             return True
     return False
 
