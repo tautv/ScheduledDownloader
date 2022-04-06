@@ -34,18 +34,18 @@ cp_obj = configparser.ConfigParser()
 
 
 def ReadConfigs():
-    '''Read the config file'''
+    """Read the config file"""
     cp_obj.read(config_path)
 
 
 def SaveConfigs():
-    '''Save config file from current memory'''
+    """Save config file from current memory"""
     with open(config_path, 'w') as _file:
         cp_obj.write(_file)
 
 
 def RemoveSection(section):
-    '''Remove section if it exists'''
+    """Remove section if it exists"""
     ReadConfigs()
     if (cp_obj.has_section(section)):
         cp_obj.remove_section(section)
@@ -55,7 +55,7 @@ def RemoveSection(section):
 
 
 def AddSection(new_section):
-    '''Add section if it doesn't exists yet'''
+    """Add section if it doesn't exists yet"""
     ReadConfigs()
     if not (cp_obj.has_section(new_section)):
         cp_obj.add_section(new_section)
@@ -70,7 +70,7 @@ def AddSection(new_section):
 
 
 def SetValue(section, key, new_value):
-    '''Set new value for key, if section exists'''
+    """Set new value for key, if section exists"""
     ReadConfigs()
     if (cp_obj.has_section(section)):
         cp_obj.set(section, key, new_value)
@@ -80,7 +80,7 @@ def SetValue(section, key, new_value):
 
 
 def GetValue(section, key):
-    '''Get value if section & key exists'''
+    """Get value if section & key exists"""
     ReadConfigs()
     if (cp_obj.has_option(section, key)):
         return cp_obj.get(section, key)
@@ -94,8 +94,8 @@ def GetAllSections():
 
 
 def GetNextSectionID():
-    '''Returns next section ID, if there're gaps, will return that.
-        if no gaps, will return next incremental ID'''
+    """Returns next section ID, if there're gaps, will return that.
+        if no gaps, will return next incremental ID"""
     ReadConfigs()
     # set all section names as integers, since we use them as IDs
     _all = [int(x) for x in GetAllSections()]
