@@ -17,7 +17,7 @@ class Downloader(Thread):
         self.stopped = False
         # need this flag
         ssl._create_default_https_context = ssl._create_unverified_context
-        # parse the URL, if can't find the extension, try HTTP Head:
+        # parse the URL; if it can't find the extension, try HTTP Head:
         _fname = os.path.basename(urlparse(self.url).path)
         if ('.' not in _fname):
             try:
@@ -46,9 +46,9 @@ class Downloader(Thread):
         if not (self.stopped):
             if(totalsize < 0):
                 self.event.SendMessage((self._id, "NoTotalSize"))
-            readed_data = blocknum * blocksize
+            read_data = blocknum * blocksize
             if totalsize > 0:
-                self.download_percentage = readed_data * 100 / totalsize
+                self.download_percentage = read_data * 100 / totalsize
                 # slow down the return of the percentages:
                 if (int(self.download_percentage) % 5 == 0):
                     self.event.SendMessage(
@@ -66,8 +66,8 @@ class Downloader(Thread):
                     self.event.SendMessage((self._id, "Error"))
                     self.StopThread()
             else:
-                raise Exception('Destination is empty!')
                 self.event.SendMessage((self._id, "Error"))
+                raise Exception('Destination is empty!')
             # end of main job
             self.event.SendMessage((self._id, self.download_percentage))
             self.event.SendMessage((self._id, "Finished"))

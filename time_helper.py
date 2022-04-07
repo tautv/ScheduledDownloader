@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
+
 def GetTimestamp():
     time = datetime.datetime.now()
     year = time.strftime("%Y")
@@ -10,6 +11,7 @@ def GetTimestamp():
     minute = time.strftime("%M")
     second = time.strftime("%S")
     return "%s/%s/%s %s:%s:%s" % (year, month, day, hour, minute, second)
+
 
 def IsValidFrequency(_frequency):
     try:
@@ -30,6 +32,7 @@ def IsValidFrequency(_frequency):
     except Exception as e:
         print(e)
         return False
+
 
 def TimeUntilNextDownload(_last_download_time, _frequency):
     _weekdayToday = datetime.datetime.now().weekday()
@@ -52,7 +55,7 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
     for i in range(7):
         if(_f_days_wrapped[i] == '1'):
             # if we're looking at the past, ignore today
-            if(_hours_Now>_hours_Last):
+            if(_hours_Now > _hours_Last):
                 _today = True
             break
         else:
@@ -64,7 +67,7 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
     _res_minutes, _res_seconds = divmod(_res_remainder, 60)
 
     # If hour passed already
-    if(_hours_Now<_hours_Last):
+    if(_hours_Now < _hours_Last):
         _dt_td = datetime.timedelta(days=_addToDelta, seconds=_res_seconds, minutes=_res_minutes, hours=_res_hours)
         return _dt_td
     else:
@@ -73,6 +76,7 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
         else:
             _dt_td = datetime.timedelta(days=_addToDelta, seconds=0, minutes=0, hours=0)
         return _dt_td
+
 
 def ShouldDownload(_last_download_time, _frequency):
     _weekdayToday = datetime.datetime.now().weekday()
@@ -99,11 +103,11 @@ def ShouldDownload(_last_download_time, _frequency):
 
     if(_f_days_wrapped[0] == '1'):
         # past
-        if(_last_download_date<_today_download_date):
+        if(_last_download_date < _today_download_date):
             return True
         # present
-        elif(_last_download_date==_today_download_date):
-            if(_hours_Now>_hours_Last):
+        elif(_last_download_date == _today_download_date):
+            if(_hours_Now > _hours_Last):
                 # this is supposed to download if we launch the app,
                 #   and the download time is today,
                 #   but we missed the hour, it would download, however:
@@ -112,10 +116,10 @@ def ShouldDownload(_last_download_time, _frequency):
                 # If this is not solved, if the app is not running,
                 #   it will not download today's list if the time passed already.
                 pass  # return True
-            if(_hours_Now==_hours_Last):
+            if(_hours_Now == _hours_Last):
                 return True
         # future
         else:
-            if(_hours_Now>_hours_Last):
-                    return True
+            if(_hours_Now > _hours_Last):
+                return True
     return False

@@ -7,7 +7,7 @@ import time_helper
 config_file_name = 'configs.dat'
 # default name for the sample config file
 config_sample_file_name = 'configs_sample.dat'
-# current path of this configs.py file
+# current path of configs.py file
 cur_path = os.path.dirname(os.path.realpath(__file__))
 # combined current path with config file name
 config_path = os.path.join(cur_path, config_file_name)
@@ -40,8 +40,8 @@ def ReadConfigs():
 
 def SaveConfigs():
     """Save config file from current memory"""
-    with open(config_path, 'w') as _file:
-        cp_obj.write(_file)
+    with open(config_path, 'w') as _File:
+        cp_obj.write(_File)
 
 
 def RemoveSection(section):
@@ -55,7 +55,7 @@ def RemoveSection(section):
 
 
 def AddSection(new_section):
-    """Add section if it doesn't exists yet"""
+    """Add section if it doesn't exist yet"""
     ReadConfigs()
     if not (cp_obj.has_section(new_section)):
         cp_obj.add_section(new_section)
@@ -94,14 +94,14 @@ def GetAllSections():
 
 
 def GetNextSectionID():
-    """Returns next section ID, if there're gaps, will return that.
+    """Returns next section ID, if there are gaps, will return that.
         if no gaps, will return next incremental ID"""
     ReadConfigs()
     # set all section names as integers, since we use them as IDs
     _all = [int(x) for x in GetAllSections()]
     # check if any sections exists at all
     if(len(GetAllSections()) > 0):
-        # check from 1 to n and asign next not-used ID,
+        # check from 1 to n and assign next not-used ID,
         # where n is max ID used + 1
         for i in range(1, max(_all) + 2):
             if (i not in _all):
