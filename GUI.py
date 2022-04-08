@@ -10,8 +10,8 @@ import time_helper
 
 # Helper:
 def isWidgetWithName(_widget, _instance, _name):
-    if(isinstance(_widget, _instance)):
-        if(_widget.GetName() == _name):
+    if isinstance(_widget, _instance):
+        if _widget.GetName() == _name:
             return True
     return False
 
@@ -83,7 +83,7 @@ class MainPanel(wx.Panel):
         # If we created some dynamic widgets already, clear them:
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
-            if (_dw):
+            if _dw:
                 _dw.Destroy()
         self.gSizer = wx.FlexGridSizer(7, 10, 10)
         self.gSizer.AddGrowableCol(2, 1)
@@ -146,12 +146,12 @@ class MainPanel(wx.Panel):
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
             # Start download thread, disable the Download button
-            if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
-                if (_dw.IsEnabled()):
+            if isWidgetWithName(_dw, wx.Button, '%s' % _id):
+                if _dw.IsEnabled():
                     dm_d.StartThread()
                     _dw.Disable()
             # Disable Edit button while downloading
-            if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id)):
+            if isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id):
                 _dw.Disable()
 
     def _d_b_Edit_Command(self, evt):
@@ -161,56 +161,56 @@ class MainPanel(wx.Panel):
     def DynamicEvents_command(self, msg):
         _id = msg[0]
         _msg = msg[1]
-        if not(self.gSizer):
+        if not self.gSizer:
             return
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
             # Update Gauge part
-            if(isWidgetWithName(_dw, wx.Gauge, 'Gauge_%s' % _id)):
-                if(isinstance(_msg, str)):
-                    if (_msg == 'Finished'):
+            if isWidgetWithName(_dw, wx.Gauge, 'Gauge_%s' % _id):
+                if isinstance(_msg, str):
+                    if _msg == 'Finished':
                         _dw.SetValue(0)
-                    if (_msg == 'Error'):
+                    if _msg == 'Error':
                         _dw.SetValue(0)
-                    if (_msg == 'NoTotalSize'):
+                    if _msg == 'NoTotalSize':
                         _dw.Pulse()
-                if(isinstance(_msg, float)):
-                    if(_msg < 100.00):
+                if isinstance(_msg, float):
+                    if _msg < 100.00:
                         wx.CallAfter(_dw.SetValue, _msg)
                     else:
                         wx.CallAfter(_dw.SetValue, 0)
             # Update StaticText part
             if(isWidgetWithName(_dw, wx.StaticText, 'LastDownload_%s' % _id)):  # noqa
-                if(isinstance(_msg, str)):
-                    if (_msg == 'Finished'):
+                if isinstance(_msg, str):
+                    if _msg == 'Finished':
                         _time_stamp = time_helper.GetTimestamp()
                         _dw.SetLabel('Last Download: %s' % _time_stamp)  # noqa
                         configs.SetValue(_id, 'last_download_time', _time_stamp)  # noqa
-                    if (_msg == 'Error'):
+                    if _msg == 'Error':
                         _dw.SetLabel('Last Download: %s' % 'Error!')
             # Update Download Button part
-            if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
-                if(isinstance(_msg, str)):
-                    if (_msg == 'Finished'):
+            if isWidgetWithName(_dw, wx.Button, '%s' % _id):
+                if isinstance(_msg, str):
+                    if _msg == 'Finished':
                         _dw.Enable()
-                    if (_msg == 'Error'):
+                    if _msg == 'Error':
                         _dw.Enable()
-                    if (_msg == 'Stopped'):
+                    if _msg == 'Stopped':
                         _dw.Enable()
-                if(isinstance(_msg, float)):
-                    if(_msg >= 100.00):
+                if isinstance(_msg, float):
+                    if _msg >= 100.00:
                         _dw.Enable()
             # Update Edit Button part
-            if(isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id)):
-                if (isinstance(_msg, str)):
-                    if (_msg == 'Finished'):
+            if isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id):
+                if isinstance(_msg, str):
+                    if _msg == 'Finished':
                         _dw.Enable()
-                    if (_msg == 'Error'):
+                    if _msg == 'Error':
                         _dw.Enable()
-                    if (_msg == 'Stopped'):
+                    if _msg == 'Stopped':
                         _dw.Enable()
-                if(isinstance(_msg, float)):
-                    if(_msg >= 100.00):
+                if isinstance(_msg, float):
+                    if _msg >= 100.00:
                         _dw.Enable()
 
     def UpdateTopTimer(self):
@@ -218,17 +218,17 @@ class MainPanel(wx.Panel):
         wx.CallLater(1000, self.UpdateTopTimer)
 
     def UpdateTimeRemaining(self, _id):
-        if(self.gSizer):
+        if self.gSizer:
             for _dWidget in self.gSizer.GetChildren():
                 _dw = _dWidget.GetWindow()
                 _ldt = configs.GetValue(_id, "last_download_time")
                 _freq = configs.GetValue(_id, "frequency")
-                if(isWidgetWithName(_dw, wx.StaticText, 'Remaining_%s' % _id)):
+                if isWidgetWithName(_dw, wx.StaticText, 'Remaining_%s' % _id):
                     _rem = time_helper.TimeUntilNextDownload(_ldt, _freq)
                     _dw.SetLabel('Next Download: %s' % _rem)
-                if(isWidgetWithName(_dw, wx.Button, '%s' % _id)):
-                    if(time_helper.ShouldDownload(_ldt, _freq)):
-                        if(_dw.IsEnabled()):
+                if isWidgetWithName(_dw, wx.Button, '%s' % _id):
+                    if time_helper.ShouldDownload(_ldt, _freq):
+                        if _dw.IsEnabled():
                             evt = wx.CommandEvent(wx.EVT_BUTTON.typeId)
                             evt.SetId(_dw.GetId())
                             evt.SetEventObject(_dw)
@@ -262,7 +262,7 @@ class EditFrame(wx.Dialog):
         self._id = _id
         self.parent = parent
         self.isNew = False
-        if(self._id not in configs.GetAllSections()):
+        if self._id not in configs.GetAllSections():
             configs.AddSection(self._id)
             self.isNew = True
         self.title = "Edit %s" % configs.GetValue(_id, 'Name')
@@ -289,11 +289,11 @@ class EditFrame(wx.Dialog):
         # Widgets Buttons
         self.b_Save = wx.Button(self, label="Save")
         self.b_Reset = wx.Button(self, label="Reset")
-        if (self.isNew):
+        if self.isNew:
             self.b_Reset.Disable()
         self.b_Delete = wx.Button(self, label="Delete")
         self.b_Cancel = wx.Button(self, label="Cancel")
-        if (self.isNew):
+        if self.isNew:
             self.b_Cancel.Disable()
 
     def BindWidgets(self):
@@ -370,7 +370,7 @@ Example: (1,0,0,0,1,0,0 23:59:59)
 
     def OnCloseWindow(self, evt):
         evt.Skip()
-        if(self.isNew):
+        if self.isNew:
             self.isNew = False
             self.b_Delete_Command(evt)
         else:

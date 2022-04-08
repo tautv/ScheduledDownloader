@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import configparser
 import os
-import time_helper
 
 # default name for the config file
 config_file_name = 'configs.dat'
@@ -18,7 +17,7 @@ config_sample_path = os.path.join(cur_path, config_sample_file_name)
 if not (os.path.exists(config_path)):
     # No config found at all. Looks for 'sample' one and warn user:
     print('No "%s" file found.' % config_file_name)
-    if (os.path.exists(config_sample_path)):
+    if os.path.exists(config_sample_path):
         print('Found "%s". Renaming this to "%s" for proper use.' %
               (config_sample_file_name, config_sample_path))
         os.rename(config_sample_path, config_path)
@@ -47,7 +46,7 @@ def SaveConfigs():
 def RemoveSection(section):
     """Remove section if it exists"""
     ReadConfigs()
-    if (cp_obj.has_section(section)):
+    if cp_obj.has_section(section):
         cp_obj.remove_section(section)
         SaveConfigs()
     else:
@@ -61,9 +60,19 @@ def AddSection(new_section):
         cp_obj.add_section(new_section)
         SetValue(new_section, "Name", "")
         SetValue(new_section, "url", "")
-        SetValue(new_section, "destination_folder", "")
-        SetValue(new_section, "last_download_time", time_helper.GetTimestamp())
-        SetValue(new_section, "frequency", "1,1,1,1,1,0,0 00:00:00")
+        SetValue(new_section, "destination_folder", ".")
+        SetValue(new_section, "last_download_time", '2089/01/01 23:59:59')
+        SetValue(new_section, "next_download_time", '2090/01/01 23:59:59')
+        SetValue(new_section, "download_type", "hour")
+        SetValue(new_section, "download_on_frequency", "08:00:00")
+        SetValue(new_section, "download_on_hour", "08:00:00")
+        SetValue(new_section, "monday", 0)
+        SetValue(new_section, "tuesday", 0)
+        SetValue(new_section, "wednesday", 0)
+        SetValue(new_section, "thursday", 0)
+        SetValue(new_section, "friday", 0)
+        SetValue(new_section, "saturday", 0)
+        SetValue(new_section, "sunday", 0)
         SaveConfigs()
     else:
         raise Exception('Section "%s" already exists!' % new_section)
@@ -72,7 +81,7 @@ def AddSection(new_section):
 def SetValue(section, key, new_value):
     """Set new value for key, if section exists"""
     ReadConfigs()
-    if (cp_obj.has_section(section)):
+    if cp_obj.has_section(section):
         cp_obj.set(section, key, new_value)
         SaveConfigs()
     else:
@@ -82,8 +91,17 @@ def SetValue(section, key, new_value):
 def GetValue(section, key):
     """Get value if section & key exists"""
     ReadConfigs()
-    if (cp_obj.has_option(section, key)):
+    if cp_obj.has_option(section, key):
         return cp_obj.get(section, key)
+    else:
+        raise Exception("No section/key found!")
+
+
+def GetBoolValue(section, key):
+    """Get bool value if section & key exists"""
+    ReadConfigs()
+    if cp_obj.has_option(section, key):
+        return cp_obj.getboolean(section, key)
     else:
         raise Exception("No section/key found!")
 
@@ -100,11 +118,11 @@ def GetNextSectionID():
     # set all section names as integers, since we use them as IDs
     _all = [int(x) for x in GetAllSections()]
     # check if any sections exists at all
-    if(len(GetAllSections()) > 0):
+    if len(GetAllSections()) > 0:
         # check from 1 to n and assign next not-used ID,
         # where n is max ID used + 1
         for i in range(1, max(_all) + 2):
-            if (i not in _all):
+            if i not in _all:
                 return str(i)
 
 
