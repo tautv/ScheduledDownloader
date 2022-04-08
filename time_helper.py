@@ -38,7 +38,7 @@ def TimeUntilNextDownload(_last_download_time, _frequency):
     _weekdayToday = datetime.datetime.now().weekday()
     _f_days = _frequency.split(' ')[0].split(',')  # gets weekday freq: [1,1,1,1,1,1,1,1]
     _f_hour = _frequency.split(' ')[1]  # gets the hour: 08:00:00
-    # Wrap the list around, so weekdaytoday is the first index
+    # Wrap the list around, so weekday today is the first index
     _f_days_wrapped = []
     for i in _f_days[_weekdayToday:]:
         _f_days_wrapped.append(i)
@@ -85,7 +85,7 @@ def ShouldDownload(_last_download_time, _frequency):
     #
     _last_download_date = datetime.datetime.strptime(_last_download_time.split(' ')[0], "%Y/%m/%d")
     _today_download_date = datetime.datetime.strptime(GetTimestamp().split(' ')[0], "%Y/%m/%d")
-    # Wrap the list around, so weekdaytoday is the first index
+    # Wrap the list around, so weekday today is the first index
     _f_days_wrapped = []
     for i in _f_days[_weekdayToday:]:
         _f_days_wrapped.append(i)
