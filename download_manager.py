@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 import os
 import event_manager
 from configs import GetValue
+# from configs import SetValue
+# import time_helper
 
 
 class Downloader(Thread):
@@ -71,5 +73,7 @@ class Downloader(Thread):
             # end of main job
             self.event.SendMessage((self._id, self.download_percentage))
             self.event.SendMessage((self._id, "Finished"))
+            # could set it here, or through GUI:
+            # self.url = SetValue(self._id, 'last_download_time', time_helper.GetTimestamp())
         else:
             self.event.SendMessage((self._id, "Stopped"))

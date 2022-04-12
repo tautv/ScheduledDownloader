@@ -39,7 +39,7 @@ class MainPanel(wx.Panel):
         self.Sizer_Bottom = wx.BoxSizer(wx.VERTICAL)
         # Top Buttons:
         self.l_TimeNow = wx.StaticText(
-            self.Panel_Top, label='1970/01/01 00:00:01')
+            self.Panel_Top, label='YYYY/mm/dd HH:MM:SS')
         self.b_NewDownload = wx.Button(self.Panel_Top, label="Add New Download")
 
     def CreateMenuBar(self):
@@ -224,10 +224,10 @@ class MainPanel(wx.Panel):
                 _ldt = configs.GetValue(_id, "last_download_time")
                 _freq = configs.GetValue(_id, "frequency")
                 if isWidgetWithName(_dw, wx.StaticText, 'Remaining_%s' % _id):
-                    _rem = time_helper.TimeUntilNextDownload(_ldt, _freq)
+                    _rem = time_helper.TimeUntilNextDownload(_id)
                     _dw.SetLabel('Next Download: %s' % _rem)
                 if isWidgetWithName(_dw, wx.Button, '%s' % _id):
-                    if time_helper.ShouldDownload(_ldt, _freq):
+                    if time_helper.ShouldDownload(_id):
                         if _dw.IsEnabled():
                             evt = wx.CommandEvent(wx.EVT_BUTTON.typeId)
                             evt.SetId(_dw.GetId())
@@ -311,11 +311,10 @@ class EditFrame(wx.Dialog):
         if not (time_helper.IsValidFrequency(_freq)):
             wx.MessageBox('''Frequency format not valid!
 It has to be:
-"1,1,1,1,1,0,0 HH:MM:SS"
-"Weekdays HH:MM:SS"
+"HH:MM:SS"
 
-Example: (1,0,0,0,1,0,0 23:59:59)
-(Monday & Friday at 23 hours, 59 Minutes, 59 Seconds)''',
+Example: (23:59:59)
+(23 hours, 59 Minutes, 59 Seconds)''',
                           'ERROR', wx.OK | wx.ICON_INFORMATION)
             return
         if not (path.exists(_dest)):
