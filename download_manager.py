@@ -72,7 +72,8 @@ class Downloader(Thread):
                 raise Exception('Destination is empty!')
             # end of main job
             self.event.SendMessage((self._id, self.download_percentage))
-            self.event.SendMessage((self._id, "Finished"))
+            if self.download_percentage > 0.0:
+                self.event.SendMessage((self._id, "Finished"))
             # could set it here, or through GUI:
             # self.url = SetValue(self._id, 'last_download_time', time_helper.GetTimestamp())
         else:

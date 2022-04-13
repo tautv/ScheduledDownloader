@@ -38,7 +38,7 @@ def TimeUntilNextDownload(_id):
 
 def ShouldDownload(_id):
     _next_download_time = TimeUntilNextDownload(_id)
-    if TimeUntilNextDownload(_next_download_time).total_seconds() < 0:
+    if _next_download_time.total_seconds() < 0:
         return True
     else:
         return False
@@ -49,14 +49,14 @@ def SetNewDownloadTime(_id):
     # determine which scheduling type this download is:
     _download_type = configs.GetValue(_id, 'download_type')
     if _download_type == 'frequency':
-        _download_on_frequency = configs.GetValue(_id, 'download_on_frequency')
-        _hour, _minute, _second = _download_on_frequency.split(':')
+        _frequency = configs.GetValue(_id, 'frequency')
+        _hour, _minute, _second = _frequency.split(':')
         _td = datetime.timedelta(seconds=int(_second), minutes=int(_minute), hours=int(_hour))
         _new_time = GetTimeAsString(_hours_Now+_td)
         configs.SetValue(_id, 'next_download_time', _new_time)
     elif _download_type == 'hour':
         _day_today = GetTimestamp().split(' ')[0]
-        _download_on_hour = configs.GetValue(_id, 'download_on_hour')
+        _download_on_hour = configs.GetValue(_id, 'frequency')
         _hour, _minute, _second = _download_on_hour.split(':')
         _monday = configs.GetValue(_id, 'monday')
         _tuesday = configs.GetValue(_id, 'tuesday')
@@ -76,7 +76,7 @@ def SetNewDownloadTime(_id):
         # check how many days until next set day:
         _days_to_add = 1
         for _d in _f_days_wrapped[1:]:  # [1:] to ignore today
-            if _d == '0':
+            if _d == 'False':
                 _days_to_add += 1
             else:
                 break

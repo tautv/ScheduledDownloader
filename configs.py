@@ -64,15 +64,14 @@ def AddSection(new_section):
         SetValue(new_section, "last_download_time", '2089/01/01 23:59:59')
         SetValue(new_section, "next_download_time", '2090/01/01 23:59:59')
         SetValue(new_section, "download_type", "hour")
-        SetValue(new_section, "download_on_frequency", "08:00:00")
-        SetValue(new_section, "download_on_hour", "08:00:00")
-        SetValue(new_section, "monday", 0)
-        SetValue(new_section, "tuesday", 0)
-        SetValue(new_section, "wednesday", 0)
-        SetValue(new_section, "thursday", 0)
-        SetValue(new_section, "friday", 0)
-        SetValue(new_section, "saturday", 0)
-        SetValue(new_section, "sunday", 0)
+        SetValue(new_section, "frequency", "08:00:00")
+        SetValue(new_section, "monday", '0')
+        SetValue(new_section, "tuesday", '0')
+        SetValue(new_section, "wednesday", '0')
+        SetValue(new_section, "thursday", '0')
+        SetValue(new_section, "friday", '0')
+        SetValue(new_section, "saturday", '0')
+        SetValue(new_section, "sunday", '0')
         SaveConfigs()
     else:
         raise Exception('Section "%s" already exists!' % new_section)
@@ -97,7 +96,11 @@ def GetValue(section, key):
         raise Exception("No section/key found!")
 
 
+# not used yet:
 def GetBoolValue(section, key):
+    # print('----------')
+    # print('Section: %s' % section)
+    # print('Key: %s' % key)
     """Get bool value if section & key exists"""
     ReadConfigs()
     if cp_obj.has_option(section, key):
