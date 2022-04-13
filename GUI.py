@@ -196,7 +196,6 @@ class MainPanel(wx.Panel):
                     if _msg == 'Finished':
                         _dw.Enable()
                     if _msg == 'Error':
-                        print('here')
                         _dw.Enable()
                     if _msg == 'Stopped':
                         _dw.Enable()
@@ -366,6 +365,7 @@ Example: (23:59:59)
         configs.SetValue(self._id, 'saturday', str(self.cb_Saturday.GetValue()))
         configs.SetValue(self._id, 'sunday', str(self.cb_Sunday.GetValue()))
         self.isNew = False
+        time_helper.SetNewDownloadTime(self._id)
         wx.CallAfter(self.parent.CreateDynamic, None)
         wx.CallAfter(self.Close)
 
