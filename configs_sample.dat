@@ -1,27 +1,31 @@
 [1]
-name = 10MB
+name = 10MB (Freq)
 url = https://sabnzbd.org/tests/internetspeed/10MB.bin
-destination_folder =
+destination_folder = .
 last_download_time = 2089/01/01 23:59:59
-frequency = 1,1,1,1,1,1,1 08:00:00
+next_download_time = 2090/01/01 23:59:59
+download_type = frequency
+frequency = 08:00:00
+monday = 0
+tuesday = 0
+wednesday = 0
+thursday = 0
+friday = 0
+saturday = 0
+sunday = 0
 
 [2]
-name = 100MB
-url = https://speed.hetzner.de/100MB.bin
-destination_folder =
+name = 10MB (On Hour)
+url = https://sabnzbd.org/tests/internetspeed/10MB.bin
+destination_folder = .
 last_download_time = 2089/01/01 23:59:59
-frequency = 0,1,1,1,1,1,1 00:00:00
-
-[3]
-name = 100MB (0ld)
-url = http://speedtest.tele2.net/100MB.zip
-destination_folder =
-last_download_time = 2089/01/01 23:59:59
-frequency = 1,0,0,0,0,0,0 08:00:00
-
-[4]
-name = 1GB
-url = https://speed.hetzner.de/1GB.bin
-destination_folder =
-last_download_time = 2089/01/01 23:59:59
-frequency = 1,1,1,1,1,1,1 12:00:00
+next_download_time = 2090/01/01 23:59:59
+download_type = hour
+frequency = 08:00:00
+monday = 0
+tuesday = 0
+wednesday = 0
+thursday = 0
+friday = 0
+saturday = 0
+sunday = 0

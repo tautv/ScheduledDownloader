@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
+import configs
 
 
-def GetTimestamp():
-    time = datetime.datetime.now()
+def GetTimeAsString(_time):
+    time = _time
     year = time.strftime("%Y")
     month = time.strftime("%m")
     day = time.strftime("%d")
@@ -13,113 +14,77 @@ def GetTimestamp():
     return "%s/%s/%s %s:%s:%s" % (year, month, day, hour, minute, second)
 
 
+def GetTimestamp():
+    return GetTimeAsString(datetime.datetime.now())
+
+
 def IsValidFrequency(_frequency):
-    try:
-        _f_days = _frequency.split(' ')[0].split(',')
-        _f_hours = _frequency.split(' ')[1]
-        if('1' not in _f_days):
-            return False
-        _hour = int(_f_hours.split(':')[0])
-        _minute = int(_f_hours.split(':')[1])
-        _second = int(_f_hours.split(':')[2])
-        if(_hour > 23):
-            raise Exception("23 is max for hours")
-        if(_minute > 59):
-            raise Exception("59 is max for minutes")
-        if(_second > 59):
-            raise Exception("59 is max for seconds")
+    _split = _frequency.split(':')
+    if len(_split) != 3:
+        return False
+    _h, _m, _s = _split
+    if (int(_h) > 0) or (int(_m) > 0) or (int(_s) > 0):
+        if (int(_h) < 24) or (int(_m) < 60) or (int(_s) < 60):
+            return True
+    return False
+
+
+def TimeUntilNextDownload(_id):
+    _next_download_time = configs.GetValue(_id, 'next_download_time')
+    _hours_Now = datetime.datetime.strptime(GetTimestamp(), "%Y/%m/%d %H:%M:%S")
+    _hours_Next = datetime.datetime.strptime(_next_download_time, "%Y/%m/%d %H:%M:%S")
+    return _hours_Next-_hours_Now
+
+
+def ShouldDownload(_id):
+    _next_download_time = TimeUntilNextDownload(_id)
+    if _next_download_time.total_seconds() < 0:
         return True
-    except Exception as e:
-        print(e)
+    else:
         return False
 
 
-def TimeUntilNextDownload(_last_download_time, _frequency):
-    _weekdayToday = datetime.datetime.now().weekday()
-    _f_days = _frequency.split(' ')[0].split(',')  # gets weekday freq: [1,1,1,1,1,1,1,1]
-    _f_hour = _frequency.split(' ')[1]  # gets the hour: 08:00:00
-    # Wrap the list around, so weekday today is the first index
-    _f_days_wrapped = []
-    for i in _f_days[_weekdayToday:]:
-        _f_days_wrapped.append(i)
-    for i in _f_days[:_weekdayToday]:
-        _f_days_wrapped.append(i)
-
-    # to check if we're looking to the past, or future:
-    _hours_Now = datetime.datetime.strptime(GetTimestamp().split(' ')[1], "%H:%M:%S")
-    _hours_Last = datetime.datetime.strptime(_f_hour, "%H:%M:%S")
-
-    # Calculate how many days until next match:
-    _addToDelta = 0
-    _today = False
-    for i in range(7):
-        if(_f_days_wrapped[i] == '1'):
-            # if we're looking at the past, ignore today
-            if(_hours_Now > _hours_Last):
-                _today = True
-            break
-        else:
-            _addToDelta += 1
-
-    # split timedelta:
-    _res = _hours_Last-_hours_Now
-    _res_hours, _res_remainder = divmod(_res.seconds, 3600)
-    _res_minutes, _res_seconds = divmod(_res_remainder, 60)
-
-    # If hour passed already
-    if(_hours_Now < _hours_Last):
-        _dt_td = datetime.timedelta(days=_addToDelta, seconds=_res_seconds, minutes=_res_minutes, hours=_res_hours)
-        return _dt_td
+def SetNewDownloadTime(_id):
+    _hours_Now = datetime.datetime.strptime(GetTimestamp(), "%Y/%m/%d %H:%M:%S")
+    # determine which scheduling type this download is:
+    _download_type = configs.GetValue(_id, 'download_type')
+    if _download_type == 'frequency':
+        _frequency = configs.GetValue(_id, 'frequency')
+        _hour, _minute, _second = _frequency.split(':')
+        _td = datetime.timedelta(seconds=int(_second), minutes=int(_minute), hours=int(_hour))
+        _new_time = GetTimeAsString(_hours_Now+_td)
+        configs.SetValue(_id, 'next_download_time', _new_time)
+    elif _download_type == 'hour':
+        _day_today = GetTimestamp().split(' ')[0]
+        _download_on_hour = configs.GetValue(_id, 'frequency')
+        _hour, _minute, _second = _download_on_hour.split(':')
+        _monday = configs.GetValue(_id, 'monday')
+        _tuesday = configs.GetValue(_id, 'tuesday')
+        _wednesday = configs.GetValue(_id, 'wednesday')
+        _thursday = configs.GetValue(_id, 'thursday')
+        _friday = configs.GetValue(_id, 'friday')
+        _saturday = configs.GetValue(_id, 'saturday')
+        _sunday = configs.GetValue(_id, 'sunday')
+        _weekdayToday = datetime.datetime.now().weekday()
+        _f_days = [_monday, _tuesday, _wednesday, _thursday, _friday, _saturday, _sunday]
+        # Wrap weekdays so today is element 0
+        _f_days_wrapped = []
+        for i in _f_days[_weekdayToday:]:
+            _f_days_wrapped.append(i)
+        for i in _f_days[:_weekdayToday]:
+            _f_days_wrapped.append(i)
+        # check how many days until next set day:
+        _days_to_add = 1
+        for _d in _f_days_wrapped[1:]:  # [1:] to ignore today
+            if _d == 'False':
+                _days_to_add += 1
+            else:
+                break
+        # Set new:
+        _new_time = '%s %s:%s:%s' % (_day_today, _hour, _minute, _second)
+        _new_time = datetime.datetime.strptime(_new_time, "%Y/%m/%d %H:%M:%S")
+        _new_time = _new_time + datetime.timedelta(days=_days_to_add)
+        _new_time = GetTimeAsString(_new_time)
+        configs.SetValue(_id, 'next_download_time', _new_time)
     else:
-        if(_addToDelta > 0) or (_today):
-            _dt_td = datetime.timedelta(days=_addToDelta, seconds=_res_seconds, minutes=_res_minutes, hours=_res_hours)
-        else:
-            _dt_td = datetime.timedelta(days=_addToDelta, seconds=0, minutes=0, hours=0)
-        return _dt_td
-
-
-def ShouldDownload(_last_download_time, _frequency):
-    _weekdayToday = datetime.datetime.now().weekday()
-    _f_days = _frequency.split(' ')[0].split(',')  # gets weekday freq: [1,1,1,1,1,1,1,1]
-    _f_hour = _frequency.split(' ')[1]  # gets the hour: 08:00:00
-    #
-    _last_download_date = datetime.datetime.strptime(_last_download_time.split(' ')[0], "%Y/%m/%d")
-    _today_download_date = datetime.datetime.strptime(GetTimestamp().split(' ')[0], "%Y/%m/%d")
-    # Wrap the list around, so weekday today is the first index
-    _f_days_wrapped = []
-    for i in _f_days[_weekdayToday:]:
-        _f_days_wrapped.append(i)
-    for i in _f_days[:_weekdayToday]:
-        _f_days_wrapped.append(i)
-
-    # to check if we're looking to the past, or future:
-    _hours_Now = datetime.datetime.strptime(GetTimestamp().split(' ')[1], "%H:%M:%S")
-    _hours_Last = datetime.datetime.strptime(_f_hour, "%H:%M:%S")
-
-    # split timedelta:
-    _res = _hours_Last-_hours_Now
-    _res_hours, _res_remainder = divmod(_res.seconds, 3600)
-    _res_minutes, _res_seconds = divmod(_res_remainder, 60)
-
-    if(_f_days_wrapped[0] == '1'):
-        # past
-        if(_last_download_date < _today_download_date):
-            return True
-        # present
-        elif(_last_download_date == _today_download_date):
-            if(_hours_Now > _hours_Last):
-                # this is supposed to download if we launch the app,
-                #   and the download time is today,
-                #   but we missed the hour, it would download, however:
-                # If this condition is met, it'll keep downloading forever.
-                # Not sure how to solve yet!
-                # If this is not solved, if the app is not running,
-                #   it will not download today's list if the time passed already.
-                pass  # return True
-            if(_hours_Now == _hours_Last):
-                return True
-        # future
-        else:
-            if(_hours_Now > _hours_Last):
-                return True
-    return False
+        raise Exception('Invalid "download_type" in configs for id: %s' % _id)
