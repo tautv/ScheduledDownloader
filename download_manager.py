@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-import time
 import os
-from threading import Thread
-import urllib.request
 import ssl
-from urllib.parse import urlparse
+import time
+import urllib.request
 import event_manager
+from urllib.parse import urlparse
+from threading import Thread
 from configs import GetValue
-# from configs import SetValue
-# import time_helper
 
 
 class Downloader(Thread):
@@ -18,10 +16,9 @@ class Downloader(Thread):
         self._id = _id
         self.url = GetValue(self._id, 'url')
         self.event = event_manager.Event(str(_id))
-        self.stopped = False
         self._last_message_timer = time.time()
         # need this flag
-        ssl._create_default_https_context = ssl._create_unverified_context
+        ssl._create_default_https_context = ssl._create_unverified_context  # noqa
         # parse the URL; if it can't find the extension, try HTTP Head:
         _fname = os.path.basename(urlparse(self.url).path)
         if '.' not in _fname[-6:]:
@@ -30,7 +27,6 @@ class Downloader(Thread):
                 r = urllib.request.urlopen(req)
                 _fname = r.info().get_filename()
             except Exception as e:
-                self.StopThread()
                 self.event.SendMessage((self._id, "Error"))
                 print(e)
         # normalizing the path from configs, given by the user,
@@ -44,12 +40,7 @@ class Downloader(Thread):
     def StartThread(self):
         self.start()
 
-    def StopThread(self):
-        self.stopped = True
-
     def Handle_Progress(self, blocknum, blocksize, totalsize):
-        if self.stopped:
-            raise
         time_now = time.time()
         if totalsize <= 0:
             if time_now - self._last_message_timer > 0.1:
@@ -62,17 +53,15 @@ class Downloader(Thread):
                 self._last_message_timer = time.time()
 
     def run(self):
-        if not self.stopped:
+        self.event.SendMessage((self._id, self.download_percentage))
+        if self.dest_path == '':
+            self.event.SendMessage((self._id, "Error"))
+            raise Exception("Destination path is empty")
+        try:
+            urllib.request.urlretrieve(
+                self.url, self.dest_path, self.Handle_Progress)
             self.event.SendMessage((self._id, self.download_percentage))
-            if self.dest_path == '':
-                raise Exception("Destination path is empty")
-            try:
-                urllib.request.urlretrieve(
-                    self.url, self.dest_path, self.Handle_Progress)
-                self.event.SendMessage((self._id, self.download_percentage))
-                self.event.SendMessage((self._id, "Finished"))
-            except Exception as e:
-                print(e)
-                self.event.SendMessage((self._id, "Error"))
-        else:
-            self.event.SendMessage((self._id, "Stopped"))
+            self.event.SendMessage((self._id, "Finished"))
+        except Exception as e:
+            print(e)
+            self.event.SendMessage((self._id, "Error"))

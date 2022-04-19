@@ -233,7 +233,7 @@ class MainPanel(wx.Panel):
                             evt.SetId(_dw.GetId())
                             evt.SetEventObject(_dw)
                             wx.PostEvent(_dw, evt)
-        wx.CallLater(1000, self.UpdateTimeRemaining, _id)
+        wx.CallLater(2000, self.UpdateTimeRemaining, _id)
 
     def OnCloseWindow(self, evt):
         evt.Skip()
