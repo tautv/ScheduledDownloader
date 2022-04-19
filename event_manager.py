@@ -2,7 +2,7 @@
 from pubsub import pub
 
 
-class Event():
+class Event:
     def __init__(self, name):
         self.name = name
 
