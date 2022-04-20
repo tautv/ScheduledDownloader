@@ -133,7 +133,7 @@ class MainPanel(wx.Panel):
         # Improve specifics later:
         aboutInfo = wx.adv.AboutDialogInfo()
         aboutInfo.SetName("Scheduled Downloader")
-        aboutInfo.SetVersion('0.01')
+        aboutInfo.SetVersion('0.02')
         aboutInfo.SetDescription("wxPython-based Scheduled Downloader")
         aboutInfo.SetCopyright("(C) 2021-2022")
         aboutInfo.SetWebSite("https://github.com/tautv/ScheduledDownloader")
