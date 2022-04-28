@@ -85,25 +85,25 @@ class MainPanel(wx.Panel):
             _dw = _dWidget.GetWindow()
             if _dw:
                 _dw.Destroy()
-        self.gSizer = wx.FlexGridSizer(7, 10, 10)
-        self.gSizer.AddGrowableCol(2, 1)
+        self.gSizer = wx.FlexGridSizer(8, 10, 10)
+        self.gSizer.AddGrowableCol(3, 1)
         # ----------------------------
         # Create Dynamic Widgets:
         for i in configs.GetAllSections():
-            _d_l_ID = wx.StaticText(
-                self.Panel_Bottom, name='ID_%s' % i, label="ID:%s" % i)
+            _d_cb_enabled = wx.CheckBox(self.Panel_Bottom, label="", name="%s" % i)
+            _d_cb_enabled.SetValue(configs.GetBoolValue(str(i), "enabled"))
+            _d_l_ID = wx.StaticText(self.Panel_Bottom, name='ID_%s' % i, label="ID:%s" % i)   # noqa
             _d_l_Name = wx.StaticText(self.Panel_Bottom, name='Name_%s' % i, label="Name: %s" % configs.GetValue(i, 'Name'))  # noqa
             _d_g_ProgressBar = wx.Gauge(self.Panel_Bottom, name='Gauge_%s' % i, range=100, size=(100, 20), style=wx.GA_HORIZONTAL)  # noqa
-            _d_g_RemainingTime = wx.StaticText(
-                self.Panel_Bottom, name="Remaining_%s" % i, label="Next Download: 0 Days 00:00:00")  # noqa
+            _d_g_RemainingTime = wx.StaticText(self.Panel_Bottom, name="Remaining_%s" % i, label="Next Download: 0 Days 00:00:00")  # noqa
             _d_b_Download = wx.Button(self.Panel_Bottom, name='%s' % i, label="Download Now")  # noqa
             _d_l_LastDownload = wx.StaticText(self.Panel_Bottom,
                                               name="LastDownload_%s" % i,
                                               label="Last Download: %s" %
                                               configs.GetValue(i, 'last_download_time'))  # noqa
-            _d_b_Edit = wx.Button(
-                self.Panel_Bottom, label="...", name="Edit_%s" % i)
+            _d_b_Edit = wx.Button(self.Panel_Bottom, label="...", name="Edit_%s" % i)  # noqa
             # Grid:
+            self.gSizer.Add(_d_cb_enabled)
             self.gSizer.Add(_d_l_ID)
             self.gSizer.Add(_d_l_Name)
             self.gSizer.Add(_d_g_ProgressBar, 0, wx.EXPAND)
@@ -114,6 +114,7 @@ class MainPanel(wx.Panel):
             # Bind Buttons:
             _d_b_Download.Bind(wx.EVT_BUTTON, self._d_b_Download_Command)
             _d_b_Edit.Bind(wx.EVT_BUTTON, self._d_b_Edit_Command)
+            _d_cb_enabled.Bind(wx.EVT_CHECKBOX, self._d_cb_enabled_Command)
             self.DynamicEvents.append((i, event_manager.Event(i)))
             self.DynamicEvents[-1][1].Subscribe(self.DynamicEvents_command)
             # Call Timer:
@@ -146,17 +147,26 @@ class MainPanel(wx.Panel):
         for _dWidget in self.gSizer.GetChildren():
             _dw = _dWidget.GetWindow()
             # Start download thread, disable the Download button
-            if isWidgetWithName(_dw, wx.Button, '%s' % _id):
-                if _dw.IsEnabled():
-                    dm_d.StartThread()
+            if configs.GetBoolValue(_id, 'enabled'):
+                if isWidgetWithName(_dw, wx.Button, '%s' % _id):
+                    if _dw.IsEnabled():
+                        dm_d.StartThread()
+                        _dw.Disable()
+                # Disable Edit button while downloading
+                if isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id):
                     _dw.Disable()
-            # Disable Edit button while downloading
-            if isWidgetWithName(_dw, wx.Button, 'Edit_%s' % _id):
-                _dw.Disable()
+            else:
+                if isWidgetWithName(_dw, wx.StaticText, 'LastDownload_%s' % _id):
+                    _dw.SetLabel('Download Skipped')
 
     def _d_b_Edit_Command(self, evt):
         _id = evt.GetEventObject().GetName().replace('Edit_', '')
         EditFrame(self, _id).ShowModal()
+
+    def _d_cb_enabled_Command(self, evt):
+        _obj = evt.GetEventObject()
+        _id = _obj.GetName().replace('Edit_', '')
+        configs.SetValue(_id, "enabled", str(_obj.GetValue()))
 
     def DynamicEvents_command(self, msg):
         _id = msg[0]
@@ -244,7 +254,7 @@ class MainFrame(wx.Frame):
     def __init__(self):
         super().__init__(None,
                          title="Scheduled Downloader",
-                         size=(900, 550))
+                         size=(1024, 512))
         self.CreateWidgets()
         self.GridWidgets()
 

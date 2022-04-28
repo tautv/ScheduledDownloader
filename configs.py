@@ -72,6 +72,7 @@ def AddSection(new_section):
         SetValue(new_section, "friday", 'False')
         SetValue(new_section, "saturday", 'False')
         SetValue(new_section, "sunday", 'False')
+        SetValue(new_section, "enabled", 'True')
         SaveConfigs()
     else:
         raise Exception('Section "%s" already exists!' % new_section)
