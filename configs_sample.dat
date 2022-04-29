@@ -13,6 +13,7 @@ thursday = False
 friday = False
 saturday = False
 sunday = False
+enabled = True
 
 [2]
 name = 20MB (On Hour)
@@ -29,3 +30,4 @@ thursday = False
 friday = False
 saturday = False
 sunday = False
+enabled = True
