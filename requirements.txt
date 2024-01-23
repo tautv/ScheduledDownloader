@@ -3,3 +3,4 @@ pillow==10.2.0
 Pypubsub==4.0.3
 six==1.16.0
 wxPython==4.2.1
+pyArrow
